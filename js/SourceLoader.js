@@ -23,7 +23,7 @@ THREE.SourceLoader.prototype = {
     	var scope = this
     	var url = this.urls[i]
 		var loader = new THREE.XHRLoader(this.manager);
-		loader.setCrossOrigin(this.crossOrigin);
+		//loader.setCrossOrigin(this.crossOrigin);
 		loader.load(url, function(text) {
 			scope.results[url] = text
 	    	scope.loadFile(i+1)

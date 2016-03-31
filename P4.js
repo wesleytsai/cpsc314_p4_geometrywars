@@ -32,8 +32,8 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// FLOOR WITH CHECKERBOARD 
-var floorTexture = new THREE.ImageUtils.loadTexture('images/checkerboard.jpg');
+// FLOOR WITH CHECKERBOARD
+var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(4, 4);
 
