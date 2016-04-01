@@ -202,32 +202,34 @@ gem_toon.parent = floor;
 var keyboard = new THREEx.KeyboardState();
 var render = function () {
     // tip: change armadillo shading here according to keyboard
+    console.log(keyHash['W']);
+    if (keyHash['W']) {
+        armadillo.position.z -= movementSpeed;
+    } else if (keyHash['S']) {
+        armadillo.position.z += movementSpeed;
+    }
+
+    if (keyHash['A']) {
+        armadillo.position.x -= movementSpeed;
+    } else if (keyHash['D']) {
+        armadillo.position.x += movementSpeed;
+    }
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 }
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
+keyboard.domElement.addEventListener('keyup', onKeyUp);
 
+var keyHash = {};
+var movementSpeed = 1;
 function onKeyDown(event) {
-    if (keyboard.eventMatches(event, "1")) {
-        console.log('hi');
-        for (var i in armadillo.children) {
-            armadillo.children[i].material = gouraudMaterial;
-        }
-    } else if (keyboard.eventMatches(event, "2")) {
-        for (var i in armadillo.children) {
-            armadillo.children[i].material = phongMaterial;
-        }
-    } else if (keyboard.eventMatches(event, "3")) {
-        for (var i in armadillo.children) {
-            armadillo.children[i].material = blinnphongMaterial;
-        }
-    } else if (keyboard.eventMatches(event, "4")) {
-        for (var i in armadillo.children) {
-            armadillo.children[i].material = coolwarmMaterial;
-        }
-    }
+        keyHash[String.fromCharCode(event.which)] = true;
+}
+
+function onKeyUp(event) {
+    keyHash[String.fromCharCode(event.which)] = false;
 }
 
 render();
