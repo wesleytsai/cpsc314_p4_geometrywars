@@ -8,7 +8,7 @@ var scene = new THREE.Scene();
 // SETUP RENDERER
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff);
+renderer.setClearColor(0xffffff, 0);
 document.body.appendChild(renderer.domElement);
 
 // SETUP CAMERA
@@ -33,15 +33,25 @@ window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
+/*
 var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(4, 4);
+*/
 
-var floorMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
-var floorGeometry = new THREE.PlaneBufferGeometry(30, 30);
-var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
+
+var floorGeometry = new THREE.Geometry();
+var gridRadius = 25;
+for (var i = -gridRadius; i < gridRadius+1; i += 2) {
+    floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
+    floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
+    floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
+    floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
+}
+
+var floor = new THREE.Line(floorGeometry, floorMaterial, THREE.LinePieces);
 floor.position.y = -0.1;
-floor.rotation.x = Math.PI / 2;
 scene.add(floor);
 
 // LIGHTING UNIFORMS
@@ -49,18 +59,10 @@ var lightColor = new THREE.Color(1, 1, 1);
 var ambientColor = new THREE.Color(0.4, 0.4, 0.4);
 var lightPosition = new THREE.Vector3(70, 250, 70);
 
-var litColor = new THREE.Color(0.3, 0.4, 0.6);
-var unLitColor = new THREE.Color(0.15, 0.2, 0.3);
-var outlineColor = new THREE.Color(0.04, 0.1, 0.15);
-
-var litArmadilloColor = new THREE.Color(0.15, 0.6, 0.3);
-var unLitArmadilloColor = new THREE.Color(0.04, 0.3, 0.15);
-
 var kAmbient = 0.4;
 var kDiffuse = 0.8;
 var kSpecular = 0.8;
 var shininess = 10.0;
-var toneBalance = 0.5;
 
 // MATERIALS
 var gouraudMaterial = new THREE.ShaderMaterial({
@@ -141,8 +143,7 @@ new THREE.SourceLoader().load(shaderFiles, function (shaders) {
 })
 
 // LOAD ARMADILLO
-var armadillo
-function loadOBJ(file, material, scale, xOff, yOff, zOff, xRot, yRot, zRot) {
+function loadOBJ(file, onLoad) {
     var onProgress = function (query) {
         if (query.lengthComputable) {
             var percentComplete = query.loaded / query.total * 100;
@@ -154,27 +155,29 @@ function loadOBJ(file, material, scale, xOff, yOff, zOff, xRot, yRot, zRot) {
         console.log('Failed to load ' + file);
     };
 
-    var loader = new THREE.OBJLoader()
-    loader.load(file, function (object) {
-        object.traverse(function (child) {
-            if (child instanceof THREE.Mesh) {
-                child.material = material;
-            }
-        });
-
-        object.position.set(xOff, yOff, zOff);
-        object.rotation.x = xRot;
-        object.rotation.y = yRot;
-        object.rotation.z = zRot;
-        object.scale.set(scale, scale, scale);
-        object.parent = floor;
-        scene.add(object);
-        armadillo = object;
-
-    }, onProgress, onError);
+    var loader = new THREE.OBJLoader();
+    loader.load(file, onLoad, onProgress, onError);
 }
 
-loadOBJ('obj/armadillo.obj', gouraudMaterial, 3, 0, 3, -2, 0, Math.PI, 0);
+function onLoadPlayer(object) {
+    material = phongMaterial;
+    player = object;
+    player.traverse(function (child) {
+        if (child instanceof THREE.Mesh) {
+            child.material = material;
+        }
+    });
+    var scale = 0.01
+    var floatHeight = 1;
+    player.scale.set(scale, scale, scale);
+    player.rotation.set(-Math.PI/2, 0, 0);
+    player.position.set(0, floatHeight, 0);
+    scene.add(player);
+};
+
+var player;
+loadOBJ('obj/player.obj', onLoadPlayer);
+
 
 // CREATE SPHERES
 var sphere = new THREE.SphereGeometry(1, 32, 32);
@@ -202,17 +205,16 @@ gem_toon.parent = floor;
 var keyboard = new THREEx.KeyboardState();
 var render = function () {
     // tip: change armadillo shading here according to keyboard
-    console.log(keyHash['W']);
     if (keyHash['W']) {
-        armadillo.position.z -= movementSpeed;
+        player.position.z -= movementSpeed;
     } else if (keyHash['S']) {
-        armadillo.position.z += movementSpeed;
+        player.position.z += movementSpeed;
     }
 
     if (keyHash['A']) {
-        armadillo.position.x -= movementSpeed;
+        player.position.x -= movementSpeed;
     } else if (keyHash['D']) {
-        armadillo.position.x += movementSpeed;
+        player.position.x += movementSpeed;
     }
 
     requestAnimationFrame(render);
