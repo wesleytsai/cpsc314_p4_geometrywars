@@ -28,3 +28,13 @@ function updateFPScounter () {
     __UI_frameTime += (thisFrameTime - __UI_frameTime) / FPS_LOPASS_FILTER_STRENGTH;
     __UI_last = now;
 }
+
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    var modal = document.getElementById('egm_modal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+        location.reload();
+    }
+};

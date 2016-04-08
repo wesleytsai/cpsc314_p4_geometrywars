@@ -21,6 +21,7 @@ body {
 .ui_element {
     display: inline;
 }
+/*http://bradsknutson.com/blog/display-loading-image-while-page-loads/*/
 .loader {
     position: fixed;
     left: 0px;

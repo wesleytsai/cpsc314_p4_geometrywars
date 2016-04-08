@@ -32,7 +32,14 @@ function gameOVERRRRR () {
         __Game_lsobj.high_score = score;
     }
     updatelocalStorage();
-    ; // TODO
+    var modal_body = document.getElementById('modal-body');
+    modal_body.innerHTML = "Thanks for playing! \
+            Your score was " + score + ". \
+            The previous high score was " + old_highscore + ".\n \
+            Click anywhere outside of this pop-up to exit and jump into \
+            a new game!";
+    var modal = document.getElementById('egm_modal');
+    modal.style.display = "block";
 }
 
 
