@@ -89,8 +89,11 @@ var render = function () {
         ticks += 1;
     }
 
-    // Write score
+    // Write UI
     document.getElementById('score').innerHTML = score;
+    if (player) {
+        document.getElementById('player_health').innerHTML = player.health;
+    }
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);

@@ -3,7 +3,7 @@ canvas {
     height: 100%
 }
 body {
-    font-family: Monospace;
+    font-family: "Helvetica Neue";
     background-color: #000;
     color: #fff;
     margin: 0px;
@@ -16,7 +16,11 @@ body {
     text-align: left;
     z-index: 100;
     display:block;
+    font-size: xx-large;
 }
 #score {
+    display: inline;
+}
+#player_health {
     display: inline;
 }

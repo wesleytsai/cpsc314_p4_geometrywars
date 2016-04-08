@@ -48,7 +48,10 @@ function handleCollision(player, object) {
         var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
         for (var i in collidedObjects) {
             if (collidedObjects[i].type == 'enemy') {
-                player.life = 0;
+                player.health -= ENEMY_DAMAGE;
+                if (player.health <= 0) {
+                    player.life = 0;
+                }
             }
         }
     } else if (object.type == 'projectile') {

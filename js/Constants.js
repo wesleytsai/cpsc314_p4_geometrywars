@@ -5,3 +5,6 @@
 var GRID_RADIUS = 30;
 // Height at which objects should float above the grid
 var FLOAT_HEIGHT = 1;
+
+var PLAYER_START_HEALTH = 100;
+var ENEMY_DAMAGE = 2;
