@@ -7,7 +7,7 @@ var scene = new THREE.Scene();
 var renderer = setup_renderer();
 
 // SETUP CAMERA
-var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
+var cameraDefaultPos = new THREE.Vector3(0, 55, 60);
 var camera = setup_camera(scene, cameraDefaultPos);
 
 // ADAPT TO WINDOW RESIZE

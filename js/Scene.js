@@ -50,7 +50,8 @@ function setup_camera(scene, cameraDefaultPos) {
 
 function updateCamera (camera, cameraDefaultPos) {
     /// CAMERA WORK ///
-    camera.position.x = player.position.x / 4;
-    camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
+    camera.position.x = player.position.x / 2;
+    camera.position.z = player.position.z / 2 + cameraDefaultPos.z;
+    camera.position.y = player.position.z / 4 + cameraDefaultPos.y;
     camera.lookAt(player.position);
 }
