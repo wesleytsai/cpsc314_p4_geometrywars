@@ -42,7 +42,6 @@ var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
 // SETUP UPDATE CALL-BACK
-var movingObjects = [];
 var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
@@ -186,7 +185,7 @@ function onMouseClick(event) {
 
 
 var enemyRandomMat = new THREE.MeshBasicMaterial({
-    color: 'red',
+    color: 'red'
 });
 var enemyrandomGeo = new THREE.RingGeometry(0.4, 0.6);
 
@@ -200,30 +199,11 @@ function createEnemyRandom() {
     var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, FLOAT_HEIGHT, posZ);
-    enemy.type = 'enemy'
+    enemy.type = 'enemy';
     addMovementProperties(enemy, 1, player.maxAccel / 2, 0);
     scene.add(enemy);
 
     enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
-}
-
-var spacialHash = [];
-
-function resetSpacialHash() {
-    spacialHash = [];
-    for (var x = 0; x < GRID_RADIUS * 2; x++) {
-        spacialHash.push([]);
-        for (var y = 0; y < GRID_RADIUS * 2; y++) {
-            spacialHash[x][y] = [];
-        }
-    }
-
-    for (var i = 0; i < movingObjects.length; i++) {
-        var object = movingObjects[i];
-        var posX = Math.floor(object.position.x) + GRID_RADIUS;
-        var posY = Math.floor(object.position.y) + GRID_RADIUS;
-        spacialHash[posX][posY].push(object);
-    }
 }
 
 function getCollidedObjectsInRadius(pos, radius) {
@@ -250,7 +230,7 @@ function getCollidedObjectsInRadius(pos, radius) {
 var enemyFollowGeo = new THREE.DodecahedronGeometry(0.4);
 var enemyFollowMat = new THREE.MeshBasicMaterial({
     color: 'yellow',
-    wireframe: true,
+    wireframe: true
 });
 function createEnemyFollower() {
     var direction = new THREE.Vector3(Math.random(), 0, Math.random());
