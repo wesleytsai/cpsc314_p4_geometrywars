@@ -152,7 +152,8 @@ var render = function () {
             // Handle Death
             if (object.life != null) {
                 object.life -= 1;
-                object.material.opacity = object.life / 100.0 + 0.1;
+                if (object.material)
+                    object.material.opacity = object.life / 100.0 + 0.1;
                 if (object.life < 0) {
                     scene.remove(object);
                     continue;
@@ -201,7 +202,7 @@ function handleCollision(object) {
         var collidedObjects = getCollidedObjectsInRadius(object.position, 1);
         for (i in collidedObjects) {
             if (collidedObjects[i].type == 'enemy') {
-                scene.remove(player);
+                player.life = 0;
             }
         }
     } else if (object.type == 'projectile') {
