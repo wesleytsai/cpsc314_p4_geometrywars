@@ -33,3 +33,25 @@ function setup_camera(scene, cameraDefaultPos) {
     scene.add(camera);
     return camera;
 }
+
+
+function init_floor(gridRadius) {
+    var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
+    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(4, 4);
+
+    var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
+
+    var floorGeometry = new THREE.Geometry();
+    for (var i = -gridRadius; i < gridRadius+1; i += 2) {
+        floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
+        floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
+        floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
+        floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
+    }
+
+    var floor = new THREE.Line(floorGeometry, floorMaterial, THREE.LinePieces);
+    floor.position.y = -0.1;
+
+    return floor;
+}

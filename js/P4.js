@@ -8,6 +8,7 @@ var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
 var camera = setup_camera(scene, cameraDefaultPos);
 
 // SETUP ORBIT CONTROL OF THE CAMERA
+// TODO?
 
 // ADAPT TO WINDOW RESIZE
 function resize() {
@@ -15,28 +16,11 @@ function resize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 }
-
 window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
-var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
-floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-floorTexture.repeat.set(4, 4);
-
-var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
-
-var floorGeometry = new THREE.Geometry();
-var gridRadius = 30;
-for (var i = -gridRadius; i < gridRadius+1; i += 2) {
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
-    floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
-}
-
-var floor = new THREE.Line(floorGeometry, floorMaterial, THREE.LinePieces);
-floor.position.y = -0.1;
+var floor = init_floor(GRID_RADIUS);
 scene.add(floor);
 
 // LIGHTING UNIFORMS
@@ -216,19 +200,19 @@ function handleMovement(object) {
 }
 
 function isLeftOOB(object) {
-    return object.position.x <= -gridRadius;
+    return object.position.x <= -GRID_RADIUS;
 }
 
 function isRightOOB(object) {
-    return object.position.x > gridRadius;
+    return object.position.x > GRID_RADIUS;
 }
 
 function isUpOOB(object) {
-    return object.position.z > gridRadius;
+    return object.position.z > GRID_RADIUS;
 }
 
 function isDownOOB(object) {
-    return object.position.z <= -gridRadius;
+    return object.position.z <= -GRID_RADIUS;
 }
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
@@ -255,8 +239,8 @@ function createEnemyRandom() {
     });
 
     enemy = new THREE.Mesh(geo, mat);
-    var posX = Math.random() * gridRadius * 2 - gridRadius;
-    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
+    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
     enemy.type = 'enemy'
@@ -270,17 +254,17 @@ var spacialHash = [];
 
 function resetSpacialHash() {
     spacialHash = [];
-    for (var x = 0; x < gridRadius * 2; x++) {
+    for (var x = 0; x < GRID_RADIUS * 2; x++) {
         spacialHash.push([]);
-        for (var y = 0; y < gridRadius * 2; y++) {
+        for (var y = 0; y < GRID_RADIUS * 2; y++) {
             spacialHash[x][y] = [];
         }
     }
 
     for (var i = 0; i < movingObjects.length; i++) {
         var object = movingObjects[i];
-        var posX = Math.floor(object.position.x) + gridRadius;
-        var posY = Math.floor(object.position.y) + gridRadius;
+        var posX = Math.floor(object.position.x) + GRID_RADIUS;
+        var posY = Math.floor(object.position.y) + GRID_RADIUS;
         spacialHash[posX][posY].push(object);
     }
 }
@@ -294,9 +278,9 @@ function getCollidedObjectsInRadius(pos, radius) {
 
     // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
     // SPAGHETTI BUT ITS FAST I SWEAR
-    for (var x = Math.floor(pos.x) + gridRadius - Math.ceil(radius); x < Math.ceil(pos.x) + gridRadius + Math.ceil(radius); x++) {
-        for (var y = Math.floor(pos.y) + gridRadius - Math.ceil(radius); y < Math.ceil(pos.y) + gridRadius + Math.ceil(radius); y++) {
-            if (x > 0 && x < gridRadius * 2 && y > 0 && y < gridRadius * 2) {
+    for (var x = Math.floor(pos.x) + GRID_RADIUS - Math.ceil(radius); x < Math.ceil(pos.x) + GRID_RADIUS + Math.ceil(radius); x++) {
+        for (var y = Math.floor(pos.y) + GRID_RADIUS - Math.ceil(radius); y < Math.ceil(pos.y) + GRID_RADIUS + Math.ceil(radius); y++) {
+            if (x > 0 && x < GRID_RADIUS * 2 && y > 0 && y < GRID_RADIUS * 2) {
                 var entities = spacialHash[x][y];
                 for (i in entities) {
                     if (entities[i].d)
@@ -319,8 +303,8 @@ function createEnemyFollower() {
     });
 
     enemy = new THREE.Mesh(geo, mat);
-    var posX = Math.random() * gridRadius * 2 - gridRadius;
-    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
+    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
     enemy.type = 'enemy';
