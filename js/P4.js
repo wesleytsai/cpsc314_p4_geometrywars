@@ -25,9 +25,7 @@ var render = function () {
         }
 
         /// CAMERA WORK ///
-        camera.position.x = player.position.x / 4;
-        camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
-        camera.lookAt(player.position);
+        updateCamera(camera, cameraDefaultPos);
 
         /// PICKING PLAYER FACING DIRECTION ///
         updatePlayerDirection(player, mouse, camera);

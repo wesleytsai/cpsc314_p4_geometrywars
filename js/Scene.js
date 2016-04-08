@@ -13,15 +13,6 @@ function setup_renderer() {
     return renderer;
 }
 
-function setup_camera(scene, cameraDefaultPos) {
-    var aspect = window.innerWidth / window.innerHeight;
-    var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
-    camera.position.copy(cameraDefaultPos);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    scene.add(camera);
-    return camera;
-}
-
 function create_floor() {
     var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -41,4 +32,25 @@ function create_floor() {
     floor.position.y = -0.1;
 
     return floor;
+}
+
+
+////////////
+// Camera //
+////////////
+
+function setup_camera(scene, cameraDefaultPos) {
+    var aspect = window.innerWidth / window.innerHeight;
+    var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
+    camera.position.copy(cameraDefaultPos);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    scene.add(camera);
+    return camera;
+}
+
+function updateCamera (camera, cameraDefaultPos) {
+    /// CAMERA WORK ///
+    camera.position.x = player.position.x / 4;
+    camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
+    camera.lookAt(player.position);
 }
