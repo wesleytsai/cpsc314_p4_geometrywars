@@ -23,7 +23,6 @@ function gameLogicOrSomethingToThatEffect () {
                 } else if (object.type == "enemy") {
                     generateParticles(object.position, 5, 'orange', 80, 1, 0.2);
                     generateParticles(object.position, 5, 'white', 80, 1, 0.2);
-                    generateParticles(object.position, 5, 'red', 80, 1, 0.2);
                 }
                 scene.remove(object);
                 continue;
