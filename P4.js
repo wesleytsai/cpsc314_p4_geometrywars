@@ -138,6 +138,7 @@ function loadOBJ(file, onLoad) {
     loader.load(file, onLoad, onProgress, onError);
 }
 
+var floatHeight = 1;
 function onLoadPlayer(object) {
     material = phongMaterial;
     player = object;
@@ -147,7 +148,6 @@ function onLoadPlayer(object) {
         }
     });
     var playerScale = 0.02
-    var floatHeight = 1;
     player.scale.set(playerScale , playerScale, playerScale);
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
@@ -292,30 +292,51 @@ function isDownOOB(object) {
 keyboard.domElement.addEventListener('keydown', onKeyDown);
 keyboard.domElement.addEventListener('keyup', onKeyUp);
 window.addEventListener( 'mousemove', onMouseMove, false );
-window.addEventListener( 'click', onMouseClick, false );
+window.addEventListener( 'mousedown', onMouseClick, false );
 
 function onMouseClick(event) {
     if (mouseMapIntersection[0]) {
         var point = mouseMapIntersection[0].point;
         createProjectile(player.position, point, phongMaterial);
+        createEnemyRandom();
     }
 }
 
-function createProjectile(initPos, destination, material) {
+function createEnemyRandom() {
+    var direction = new THREE.Vector3(Math.random(), 0, Math.random());
+    direction.normalize();
+
+    geo = new THREE.RingGeometry(0.4, 0.6);
+    mat = new THREE.MeshBasicMaterial({
+        color: 'red',
+    });
+
+    enemy = new THREE.Mesh(geo, mat);
+    var posX = Math.random() * gridRadius * 2 - gridRadius;
+    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    enemy.rotation.set(-Math.PI/2, 0, 0);
+    enemy.position.set(posX, floatHeight, posZ);
+    addMovementProperties(enemy, 1.5, player.maxAccel, 0);
+    scene.add(enemy);
+
+    enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
+}
+
+function createProjectile(initPos, destination) {
     var direction = new THREE.Vector3();
     direction.subVectors(destination, initPos);
     direction.normalize();
-    pGeo = new THREE.SphereGeometry(0.2, 4, 4);
-    pMaterial = new THREE.MeshBasicMaterial({
+    geo = new THREE.SphereGeometry(0.2, 4, 4);
+    mat = new THREE.MeshBasicMaterial({
         color: 'green'
     });
-    pMaterial.transparent = true;
-    proj = new THREE.Mesh(pGeo, pMaterial);
+    mat.transparent = true;
+    proj = new THREE.Mesh(geo, mat);
     proj.position.copy(initPos);
     scene.add(proj);
 
     addMovementProperties(proj, 2, 2, 0.01);
-    proj.accel = new THREE.Vector3(direction.x * proj.accelRate, 0 , direction.z * proj.accelRate);
+    proj.accel.set(direction.x * proj.accelRate, 0 , direction.z * proj.accelRate);
     proj.life = 100;
     return proj;
 }
