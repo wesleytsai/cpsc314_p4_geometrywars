@@ -30,21 +30,9 @@ var render = function () {
         camera.lookAt(player.position);
 
         /// PICKING PLAYER FACING DIRECTION ///
-        // update the picking ray with the camera and mouse position
-        raycaster.setFromCamera(mouse, camera);
-
-        // calculate objects intersecting the picking ray
-        mouseMapIntersection = raycaster.intersectObject(floor);
-        if (mouseMapIntersection[0]) {
-            var direction = new THREE.Vector3();
-            direction.subVectors(mouseMapIntersection[0].point, player.position);
-            direction.normalize();
-            var angle = Math.atan2(direction.x, direction.z);
-            player.rotation.y = angle + Math.PI/2; // this is weird cuz should be y (we rotated on player obj initialization)
-        }
+        updatePlayerDirection(player, mouse, camera);
 
         /// SPAWN ENEMIES ///
-
         if (ticks % 100 == 0) {
             for (var i = 0; i < ticks / 1000; i++) {
                 scene.add(createEnemyRandom());
@@ -63,6 +51,6 @@ var render = function () {
 };
 
 
-var raycaster = new THREE.Raycaster();
-
-render();
+$(window).load(function () {
+    render()
+});
