@@ -1,5 +1,10 @@
-// Load 3D object
+////////////////
+// Misc. Util //
+////////////////
+
 function loadOBJ(file, onLoad) {
+    // Load 3D object
+
     var onProgress = function (query) {
         if (query.lengthComputable) {
             var percentComplete = query.loaded / query.total * 100;
@@ -16,6 +21,10 @@ function loadOBJ(file, onLoad) {
 }
 
 
+////////////////
+// Scene Init //
+////////////////
+
 function setup_renderer() {
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,7 +32,6 @@ function setup_renderer() {
     document.body.appendChild(renderer.domElement);
     return renderer;
 }
-
 
 function setup_camera(scene, cameraDefaultPos) {
     var aspect = window.innerWidth / window.innerHeight;
@@ -33,7 +41,6 @@ function setup_camera(scene, cameraDefaultPos) {
     scene.add(camera);
     return camera;
 }
-
 
 function init_floor(gridRadius) {
     var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
@@ -54,4 +61,25 @@ function init_floor(gridRadius) {
     floor.position.y = -0.1;
 
     return floor;
+}
+
+
+////////////////////
+// Bounds Testing //
+////////////////////
+
+function isLeftOOB(object) {
+    return object.position.x <= -GRID_RADIUS;
+}
+
+function isRightOOB(object) {
+    return object.position.x > GRID_RADIUS;
+}
+
+function isUpOOB(object) {
+    return object.position.z > GRID_RADIUS;
+}
+
+function isDownOOB(object) {
+    return object.position.z <= -GRID_RADIUS;
 }

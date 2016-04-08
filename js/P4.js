@@ -226,22 +226,6 @@ function handleMovement(object) {
 
 }
 
-function isLeftOOB(object) {
-    return object.position.x <= -GRID_RADIUS;
-}
-
-function isRightOOB(object) {
-    return object.position.x > GRID_RADIUS;
-}
-
-function isUpOOB(object) {
-    return object.position.z > GRID_RADIUS;
-}
-
-function isDownOOB(object) {
-    return object.position.z <= -GRID_RADIUS;
-}
-
 keyboard.domElement.addEventListener('keydown', onKeyDown);
 keyboard.domElement.addEventListener('keyup', onKeyUp);
 window.addEventListener( 'mousemove', onMouseMove, false );
