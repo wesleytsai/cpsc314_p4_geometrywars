@@ -102,7 +102,7 @@ function loadOBJ(file, onLoad) {
     loader.load(file, onLoad, onProgress, onError);
 }
 
-var floatHeight = 2;
+var floatHeight = 1;
 function onLoadPlayer(object) {
     material = phongMaterial;
     player = object;
@@ -138,7 +138,7 @@ var mouseMapIntersection;
 var render = function () {
     // tip: change armadillo shading here according to keyboard
     if (player) {
-        handleKeystroke()
+        handleKeystroke();
 
         for (var i = 0; i < movingObjects.length; i++) {
             handleMovement(movingObjects.shift());
@@ -162,7 +162,18 @@ var render = function () {
             var angle = Math.atan2(direction.x, direction.z);
             player.rotation.z = angle; // this is weird cuz should be y (we rotated on player obj initialization)
         }
+
+        resetSpacialHash();
+
+        var collidedObjects = getCollidedObjectsInRadius(player.position, 0.5);
+        for (i in collidedObjects) {
+            if (collidedObjects[i].type == 'enemy') {
+                scene.remove(player);
+            }
+        }
+
     }
+
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 }
@@ -276,10 +287,53 @@ function createEnemyRandom() {
     var posZ = Math.random() * gridRadius * 2 - gridRadius;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
+    enemy.type = 'enemy'
     addMovementProperties(enemy, 1, player.maxAccel / 2, 0);
     scene.add(enemy);
 
     enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
+}
+
+var spacialHash = [];
+
+function resetSpacialHash() {
+    spacialHash = [];
+    for (var x = 0; x < gridRadius * 2; x++) {
+        spacialHash.push([]);
+        for (var y = 0; y < gridRadius * 2; y++) {
+            spacialHash[x][y] = [];
+        }
+    }
+
+    for (var i = 0; i < movingObjects.length; i++) {
+        var object = movingObjects[i];
+        var posX = Math.floor(object.position.x) + gridRadius;
+        var posY = Math.floor(object.position.y) + gridRadius;
+        spacialHash[posX][posY].push(object);
+    }
+}
+
+function getCollidedObjectsInRadius(pos, radius) {
+    if (!spacialHash) {
+        console.log("Error: no spacialHash?");
+        return null;
+    }
+    var list = [];
+
+    // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
+    // SPAGHETTI BUT ITS FAST I SWEAR
+    for (var x = Math.floor(pos.x) + gridRadius - Math.ceil(radius); x < Math.ceil(pos.x) + gridRadius + Math.ceil(radius); x++) {
+        for (var y = Math.floor(pos.y) + gridRadius - Math.ceil(radius); y < Math.ceil(pos.y) + gridRadius + Math.ceil(radius); y++) {
+            if (x > 0 && x < gridRadius * 2 && y > 0 && y < gridRadius * 2) {
+                var entities = spacialHash[x][y];
+                for (i in entities) {
+                    if (entities[i].d)
+                    list.push(entities[i]);
+                }
+            }
+        }
+    }
+    return list;
 }
 
 function createEnemyFollower() {
@@ -297,6 +351,7 @@ function createEnemyFollower() {
     var posZ = Math.random() * gridRadius * 2 - gridRadius;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
+    enemy.type = 'enemy';
     addMovementProperties(enemy, player.maxAccel / 2, 0.02, 0.005);
     enemy.movementType = 'follow';
     scene.add(enemy);
@@ -316,6 +371,7 @@ function createProjectile(initPos, destination) {
     proj = new THREE.Mesh(geo, mat);
     proj.position.copy(initPos);
     scene.add(proj);
+    proj.type = 'projectile';
 
     addMovementProperties(proj, 2, 2, 0.01);
     proj.accel.set(direction.x * proj.accelRate, 0 , direction.z * proj.accelRate);
