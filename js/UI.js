@@ -5,6 +5,9 @@ function initUI() {
     setInterval(function(){
         document.getElementById('fps_counter').innerHTML = (1000 / __UI_frameTime).toFixed(1);
     }, 1000);
+    setInterval(function(){
+        document.getElementById('high_score').innerHTML = __Game_lsobj.high_score.toFixed(0);
+    }, 3000);
 }
 
 

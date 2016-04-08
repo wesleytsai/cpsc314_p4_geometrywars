@@ -25,7 +25,32 @@ function gameLogicOrSomethingToThatEffect () {
 }
 
 
-function gameOVERRRRR() {
+function gameOVERRRRR () {
     gameOver = true;
+    var old_highscore = __Game_lsobj.high_score;
+    if (score > old_highscore) {
+        __Game_lsobj.high_score = score;
+    }
+    updatelocalStorage();
     ; // TODO
+}
+
+
+var __Game_lsobj;
+function initlocalStorage () {
+    var lsobj = JSON.parse(localStorage.getItem(LOCALSTORAGEKEY));
+    if (lsobj == null) {
+        __Game_lsobj = {
+            high_score: 0
+        }
+    } else {
+        __Game_lsobj = lsobj;
+    }
+    localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(__Game_lsobj));
+}
+initlocalStorage();
+
+
+function updatelocalStorage() {
+    localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(__Game_lsobj));
 }
