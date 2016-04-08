@@ -1,3 +1,6 @@
+"use strict";
+
+
 function followPlayer(player, object) {
     var direction = new THREE.Vector3();
     direction.subVectors(player.position, object.position);
