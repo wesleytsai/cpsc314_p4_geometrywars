@@ -1,4 +1,5 @@
 var gameOver = false;
+var gameOverTicks = -1;
 
 
 function gameLogicOrSomethingToThatEffect () {
@@ -13,10 +14,18 @@ function gameLogicOrSomethingToThatEffect () {
             if (object.material)
                 object.material.opacity = object.life / 100.0 + 0.1;
             if (object.life < 0) {
-                scene.remove(object);
                 if (object.type == "player") {
+                    generateParticles(object.position, 7, 'orange', 100, 1, 0.1);
+                    generateParticles(object.position, 7, 'white', 100, 1, 0.1);
+                    generateParticles(object.position, 7, 'green', 100, 0.5, 0.2);
+                    generateParticles(object.position, 7, 'gray', 100, 0.5, 0.2);
                     gameOVERRRRR();
+                } else if (object.type == "enemy") {
+                    generateParticles(object.position, 5, 'orange', 80, 1, 0.2);
+                    generateParticles(object.position, 5, 'white', 80, 1, 0.2);
+                    generateParticles(object.position, 5, 'red', 80, 1, 0.2);
                 }
+                scene.remove(object);
                 continue;
             }
         }
@@ -27,6 +36,7 @@ function gameLogicOrSomethingToThatEffect () {
 
 function gameOVERRRRR () {
     gameOver = true;
+    gameOverTicks = __render_ticks;
     var old_highscore = __Game_lsobj.high_score;
     if (score > old_highscore) {
         __Game_lsobj.high_score = score;

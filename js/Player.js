@@ -46,16 +46,16 @@ function updatePlayerDirection(player, mouse, camera) {
 // Projectile //
 ////////////////
 
+var projGeo = new THREE.SphereGeometry(0.2, 4, 4);
+var projMat = new THREE.MeshBasicMaterial({
+    color: 'pink',
+    transparent: true
+});
 function createProjectile(initPos, destination) {
     var direction = new THREE.Vector3();
     direction.subVectors(destination, initPos);
     direction.normalize();
-    var geo = new THREE.SphereGeometry(0.2, 4, 4);
-    var mat = new THREE.MeshBasicMaterial({
-        color: 'white',
-        transparent: true
-    });
-    var proj = new THREE.Mesh(geo, mat);
+    var proj = new THREE.Mesh(projGeo, projMat);
     proj.position.copy(initPos);
     scene.add(proj);  // XXX? technically adding to scene here is bad design
                       //  I think but this is called by onMouseClick so ¯\_(ツ)_/¯

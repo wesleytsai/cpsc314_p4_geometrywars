@@ -24,7 +24,7 @@ function render () {
     // Write UI
     updateUI(player, score);
 
-    if (!gameOver) {
+    if (gameOverTicks < 0 || __render_ticks - gameOverTicks < 1000) {
         requestAnimationFrame(render);
     }
     renderer.render(scene, camera);

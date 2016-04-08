@@ -17,10 +17,12 @@ the project below.
 * http://www.w3schools.com/howto/howto_css_modals.asp
 * https://stackoverflow.com/questions/4787431/check-fps-in-js
 * http://bradsknutson.com/blog/display-loading-image-while-page-loads/
+* http://threejs.org/
 
 ### External Resources
 
-* None
+Battleship Model
+* http://tf3dm.com/3d-model/hn-t-42-battlecruiser-94913.html
 
 ### Collaborators
 

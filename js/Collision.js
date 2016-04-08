@@ -16,9 +16,11 @@ function resetSpacialHash() {
 
     for (var i = 0; i < movingObjects.length; i++) {
         var object = movingObjects[i];
-        var posX = Math.floor(object.position.x) + GRID_RADIUS;
-        var posY = Math.floor(object.position.y) + GRID_RADIUS;
-        spacialHash[posX][posY].push(object);
+        if (object.type != 'particle') {
+            var posX = Math.floor(object.position.x) + GRID_RADIUS;
+            var posY = Math.floor(object.position.y) + GRID_RADIUS;
+            spacialHash[posX][posY].push(object);
+        }
     }
 }
 
@@ -48,6 +50,7 @@ function handleCollision(player, object) {
         var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
         for (var i in collidedObjects) {
             if (collidedObjects[i].type == 'enemy') {
+                generateParticles(object.position, 7, 'red', 100, 1, 0.1);
                 player.health -= ENEMY_DAMAGE;
                 if (player.health <= 0) {
                     player.life = 0;
