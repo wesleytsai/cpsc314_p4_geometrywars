@@ -1,4 +1,5 @@
 var __render_ticks = 0;
+var do_render = true;
 
 function render () {
 
@@ -18,6 +19,9 @@ function render () {
                     object.material.opacity = object.life / 100.0 + 0.1;
                 if (object.life < 0) {
                     scene.remove(object);
+                    if (object.type == "player") {
+                        ; // TODO
+                    }
                     continue;
                 }
             }
@@ -39,7 +43,9 @@ function render () {
     // Write UI
     updateUI(player, score);
 
-    requestAnimationFrame(render);
+    if (do_render) {
+        requestAnimationFrame(render);
+    }
     renderer.render(scene, camera);
 }
 
