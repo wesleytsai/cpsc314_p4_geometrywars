@@ -136,18 +136,9 @@ function onMouseMove(event) {
     mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-function followPlayer(object) {
-    var direction = new THREE.Vector3();
-    direction.subVectors(player.position, object.position);
-    direction.normalize();
-    var accelRate = object.accelRate;
-    object.accel.add(new THREE.Vector3(accelRate * direction.x, 0, accelRate * direction.z));
-
-}
-
 function handleMovement(object) {
     if (object.movementType == 'follow') {
-        followPlayer(object);
+        followPlayer(player, object);
     }
 
     if (object.accel.z != 0) {
