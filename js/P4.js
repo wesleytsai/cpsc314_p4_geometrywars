@@ -54,8 +54,8 @@ var render = function () {
 
         for (var i = 0; i < movingObjects.length; i++) {
             var object = movingObjects.shift();
-            handleMovement(object);
-            handleCollision(object);
+            handleMovement(player, object);
+            handleCollision(player, object);
 
             // Handle Death
             if (object.life != null) {
@@ -117,41 +117,6 @@ function onMouseMove(event) {
     mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-function handleMovement(object) {
-    if (object.movementType == 'follow') {
-        followPlayer(player, object);
-    }
-
-    if (object.accel.z != 0) {
-        object.position.z += object.accel.z;
-        // If outta bounds bounce off the wall
-        if (isUpOOB(object) || isDownOOB(object)) {
-            object.position.z -= object.accel.z;
-            object.accel.z = -object.accel.z;
-        }
-        if (object.accel.z > 0) {
-            object.accel.z = object.accel.z > object.decelRate ? object.accel.z - object.decelRate : 0;
-        } else {
-            object.accel.z = object.accel.z < object.decelRate ? object.accel.z + object.decelRate : 0;
-        }
-    }
-
-    if (object.accel.x != 0) {
-        object.position.x += object.accel.x;
-        // If outta bounds bounce off the wall
-        if (isLeftOOB(object) || isRightOOB(object)) {
-            object.position.x -= object.accel.x;
-            object.accel.x = -object.accel.x;
-        }
-
-        if (object.accel.x > 0) {
-            object.accel.x = object.accel.x > object.decelRate ? object.accel.x - object.decelRate : 0;
-        } else {
-            object.accel.x = object.accel.x < object.decelRate ? object.accel.x + object.decelRate : 0;
-        }
-    }
-
-}
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
 keyboard.domElement.addEventListener('keyup', onKeyUp);
