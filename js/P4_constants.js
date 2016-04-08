@@ -1,0 +1,1 @@
+var GRID_RADIUS = 30;
