@@ -47,7 +47,7 @@ function init_floor(gridRadius) {
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(4, 4);
 
-    var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
+    var floorMaterial = new THREE.MeshPhongMaterial({color: 0x2121ae});
 
     var floorGeometry = new THREE.Geometry();
     for (var i = -gridRadius; i < gridRadius+1; i += 2) {
