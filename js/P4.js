@@ -93,7 +93,7 @@ var render = function () {
 
         if (ticks % 100 == 0) {
             for (var i = 0; i < ticks / 1000; i++) {
-                createEnemyRandom();
+                scene.add(createEnemyRandom());
                 scene.add(createEnemyFollower());
             }
         }
@@ -128,29 +128,6 @@ function onMouseClick(event) {
         var point = mouseMapIntersection[0].point;
         createProjectile(player.position, point);
     }
-}
-
-
-var enemyRandomMat = new THREE.MeshBasicMaterial({
-    color: 'red'
-});
-var enemyrandomGeo = new THREE.RingGeometry(0.4, 0.6);
-
-function createEnemyRandom() {
-    var direction = new THREE.Vector3(Math.random(), 0, Math.random());
-    direction.normalize();
-
-    enemy = new THREE.Mesh(enemyrandomGeo, enemyRandomMat);
-    enemy.rotation.set(-Math.PI / 2, 0, 0);
-    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
-    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
-    enemy.rotation.set(-Math.PI/2, 0, 0);
-    enemy.position.set(posX, FLOAT_HEIGHT, posZ);
-    enemy.type = 'enemy';
-    addMovementProperties(enemy, 1, player.maxAccel / 2, 0);
-    scene.add(enemy);
-
-    enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
 }
 
 
