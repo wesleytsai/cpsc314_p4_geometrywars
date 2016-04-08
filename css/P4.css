@@ -9,7 +9,7 @@ body {
     margin: 0px;
     overflow: hidden;
 }
-#info {
+#ui {
     position: absolute;
     top: 10px;
     width: 100%;
