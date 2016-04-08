@@ -7,9 +7,6 @@ var renderer = setup_renderer();
 var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
 var camera = setup_camera(scene, cameraDefaultPos);
 
-// SETUP ORBIT CONTROL OF THE CAMERA
-// TODO?
-
 // ADAPT TO WINDOW RESIZE
 function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -19,33 +16,11 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// LIGHTING UNIFORMS
-var lightColor = new THREE.Color(0.3, 0.3, 0.3);
-var pointLight = new THREE.PointLight(lightColor, 2, 100);
-var ambientColor = new THREE.Color(0.2, 0.3, 0.7);
-var hemisphereLight= new THREE.HemisphereLight(ambientColor);
-
-pointLight.position = cameraDefaultPos;
-scene.add(pointLight);
-scene.add(hemisphereLight);
-
-// FLOOR WITH CHECKERBOARD
-var floorMaterial = new THREE.MeshPhongMaterial({
-    color: 'blue'
-});
-var floorGeometry = new THREE.Geometry();
-var gridRadius = 30;
-for (var i = -gridRadius; i < gridRadius + 1; i += 2) {
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
-    floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
-}
-
 // FLOOR WITH CHECKERBOARD
 var floor = init_floor(GRID_RADIUS);
 scene.add(floor);
 
+init_lighting(scene);
 
 var floatHeight = 1;
 var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
@@ -84,7 +59,6 @@ var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
 var ticks = 0;
-var enemiesSpawnedTillNow = 0;
 var render = function () {
 
     if (player) {
@@ -279,7 +253,6 @@ function getCollidedObjectsInRadius(pos, radius) {
     var radiusSqr = radius * radius;
 
     // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
-    // SPAGHETTI BUT ITS FAST I SWEAR
     for (var x = Math.floor(pos.x) + GRID_RADIUS - Math.ceil(radius); x < Math.ceil(pos.x) + GRID_RADIUS + Math.ceil(radius); x++) {
         for (var y = Math.floor(pos.y) + GRID_RADIUS - Math.ceil(radius); y < Math.ceil(pos.y) + GRID_RADIUS + Math.ceil(radius); y++) {
             if (x > 0 && x < GRID_RADIUS * 2 && y > 0 && y < GRID_RADIUS * 2) {
