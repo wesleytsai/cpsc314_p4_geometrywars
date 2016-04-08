@@ -80,24 +80,3 @@ function create_player(object) {
     player.type = 'player';
     return player;
 }
-
-
-////////////////////
-// Bounds Testing //
-////////////////////
-
-function isLeftOOB(object) {
-    return object.position.x <= -GRID_RADIUS;
-}
-
-function isRightOOB(object) {
-    return object.position.x > GRID_RADIUS;
-}
-
-function isUpOOB(object) {
-    return object.position.z > GRID_RADIUS;
-}
-
-function isDownOOB(object) {
-    return object.position.z <= -GRID_RADIUS;
-}
