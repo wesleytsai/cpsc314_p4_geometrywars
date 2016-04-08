@@ -31,6 +31,9 @@ function onLoadPlayer(object) {
 }
 loadOBJ('obj/player.obj', onLoadPlayer);
 
+// INIT UI
+initUI();
+
 
 // SETUP UPDATE CALL-BACK
 var ticks = 0;
@@ -90,7 +93,7 @@ var render = function () {
     }
 
     // Write UI
-    writeUI(player, score);
+    updateUI(player, score);
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
