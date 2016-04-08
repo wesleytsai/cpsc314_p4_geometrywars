@@ -1,6 +1,6 @@
-// SETUP UPDATE CALL-BACK
-var ticks = 0;
-var render = function () {
+var __render_ticks = 0;
+
+function render () {
 
     if (player) {
         resetSpacialHash();
@@ -31,14 +31,9 @@ var render = function () {
         updatePlayerDirection(player, mouse, camera);
 
         /// SPAWN ENEMIES ///
-        if (ticks % 100 == 0) {
-            for (var i = 0; i < ticks / 1000; i++) {
-                scene.add(createEnemyRandom());
-                scene.add(createEnemyFollower());
-            }
-        }
+        spawn_enemies(__render_ticks);
 
-        ticks += 1;
+        __render_ticks += 1;
     }
 
     // Write UI
@@ -46,7 +41,7 @@ var render = function () {
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
-};
+}
 
 
 $(window).load(function () {

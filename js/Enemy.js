@@ -49,3 +49,14 @@ function createEnemyRandom() {
 
     return enemy;
 }
+
+
+function spawn_enemies (ticks) {
+    /// SPAWN ENEMIES ///
+    if (ticks % 100 == 0) {
+        for (var i = 0; i < __render_ticks / 1000; i++) {
+            scene.add(createEnemyRandom());
+            scene.add(createEnemyFollower());
+        }
+    }
+}

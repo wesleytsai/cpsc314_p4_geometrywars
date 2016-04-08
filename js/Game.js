@@ -1,3 +1,6 @@
+"use strict";
+
+
 var scene = new THREE.Scene();
 
 // SETUP RENDERER

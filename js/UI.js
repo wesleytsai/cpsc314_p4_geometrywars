@@ -1,3 +1,6 @@
+"use strict";
+
+
 function initUI() {
     setInterval(function(){
         document.getElementById('fps_counter').innerHTML = (1000 / __UI_frameTime).toFixed(1);
