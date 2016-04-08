@@ -1,7 +1,5 @@
-/**
- * UBC CPSC 314, January 2016
- * Project 3 Template
- */
+require('P4_lib');
+
 
 var scene = new THREE.Scene();
 
@@ -70,37 +68,21 @@ var phongMaterial = new THREE.ShaderMaterial({
         kAmbient: {type: 'f', value: kAmbient},
         kDiffuse: {type: 'f', value: kDiffuse},
         kSpecular: {type: 'f', value: kSpecular},
-        shininess: {type: 'f', value: shininess},
-    },
+        shininess: {type: 'f', value: shininess}
+    }
 });
 
 shaderFiles = [
     'glsl/phong.vs.glsl',
-    'glsl/phong.fs.glsl',
+    'glsl/phong.fs.glsl'
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function (shaders) {
     phongMaterial.vertexShader = shaders['glsl/phong.vs.glsl'];
     phongMaterial.fragmentShader = shaders['glsl/phong.fs.glsl'];
     phongMaterial.needsUpdate = true;
-})
+});
 
-// LOAD ARMADILLO
-function loadOBJ(file, onLoad) {
-    var onProgress = function (query) {
-        if (query.lengthComputable) {
-            var percentComplete = query.loaded / query.total * 100;
-            console.log(Math.round(percentComplete, 2) + '% downloaded');
-        }
-    };
-
-    var onError = function () {
-        console.log('Failed to load ' + file);
-    };
-
-    var loader = new THREE.OBJLoader();
-    loader.load(file, onLoad, onProgress, onError);
-}
 
 var floatHeight = 1;
 function onLoadPlayer(object) {
@@ -111,13 +93,13 @@ function onLoadPlayer(object) {
             child.material = material;
         }
     });
-    var playerScale = 0.02
+    var playerScale = 0.02;
     player.scale.set(playerScale , playerScale, playerScale);
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
     scene.add(player);
     addMovementProperties(player, 0.75, 0.1, 0.05);
-};
+}
 
 function addMovementProperties(object, maxAccel, accelRate, decelRate) {
     object.maxAccel = maxAccel;
@@ -131,7 +113,7 @@ var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
 // SETUP UPDATE CALL-BACK
-var movingObjects = []
+var movingObjects = [];
 var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
@@ -176,7 +158,7 @@ var render = function () {
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
-}
+};
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
@@ -279,7 +261,7 @@ function createEnemyRandom() {
 
     geo = new THREE.RingGeometry(0.4, 0.6);
     mat = new THREE.MeshBasicMaterial({
-        color: 'red',
+        color: 'red'
     });
 
     enemy = new THREE.Mesh(geo, mat);
@@ -343,7 +325,7 @@ function createEnemyFollower() {
     geo = new THREE.DodecahedronGeometry(0.4);
     mat = new THREE.MeshBasicMaterial({
         color: 'yellow',
-        wireframe: true,
+        wireframe: true
     });
 
     enemy = new THREE.Mesh(geo, mat);
