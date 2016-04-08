@@ -39,7 +39,7 @@ floorTexture.repeat.set(4, 4);
 var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
 
 var floorGeometry = new THREE.Geometry();
-var gridRadius = 25;
+var gridRadius = 30;
 for (var i = -gridRadius; i < gridRadius+1; i += 2) {
     floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
     floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
@@ -152,12 +152,16 @@ function onLoadPlayer(object) {
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
     scene.add(player);
-
-    // TODO: refactor accel
-    player.xAccel = 0;
-    player.yAccel = 0;
-    player.zAccel = 0;
+    addMovementProperties(player, 0.75, 0.1, 0.05);
 };
+
+function addMovementProperties(object, maxAccel, accelRate, decelRate) {
+    object.maxAccel = maxAccel;
+    object.accelRate = accelRate;
+    object.accel = new THREE.Vector3(0,0,0);
+    object.decelRate = decelRate;
+    movingObjects.push(object);
+}
 
 var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
@@ -180,68 +184,33 @@ gem_phong_blinn.position.set(1, 1, -1);
 gem_phong_blinn.parent = floor;
 
 // SETUP UPDATE CALL-BACK
+var movingObjects = []
 var keyHash = {};
-var movementSpeed = 0.1;
 var keyboard = new THREEx.KeyboardState();
-var decelRate = movementSpeed / 3;
-var maxAccel = 0.5;
+var mouseMapIntersection;
 var render = function () {
     // tip: change armadillo shading here according to keyboard
     if (player) {
-        if (keyHash['W']) {
-            if (Math.abs(player.zAccel) < maxAccel) {
-                player.zAccel -= movementSpeed;
-            }
-        } else if (keyHash['S']) {
-            if (Math.abs(player.zAccel) < maxAccel) {
-                player.zAccel += movementSpeed;
-            }
-        }
+        handleKeystroke();
 
-        if (keyHash['A']) {
-            if (Math.abs(player.xAccel) < maxAccel) {
-                player.xAccel -= movementSpeed;
-            }
-        } else if (keyHash['D']) {
-            if (Math.abs(player.xAccel) < maxAccel) {
-                player.xAccel += movementSpeed;
-            }
-        }
-
-        if (player.zAccel != 0) {
-            player.position.z += player.zAccel;
-            if (player.zAccel > 0) {
-                player.zAccel = player.zAccel > decelRate ? player.zAccel - decelRate : 0;
-            } else {
-                player.zAccel = player.zAccel < decelRate ? player.zAccel + decelRate : 0;
-            }
-        }
-
-        if (player.xAccel != 0) {
-            player.position.x += player.xAccel;
-            if (player.xAccel > 0) {
-                player.xAccel = player.xAccel > decelRate ? player.xAccel - decelRate : 0;
-            } else {
-                player.xAccel = player.xAccel < decelRate ? player.xAccel + decelRate : 0;
-            }
+        for (var i = 0; i < movingObjects.length; i++) {
+            handleMovement(movingObjects.shift());
         }
 
         /// CAMERA WORK ///
-        if (player) {
-            camera.position.x = player.position.x / 4;
-            camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
-            camera.lookAt(player.position);
-        }
+        camera.position.x = player.position.x / 4;
+        camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
+        camera.lookAt(player.position);
 
         /// PICKING PLAYER FACING DIRECTION ///
         // update the picking ray with the camera and mouse position
         raycaster.setFromCamera( mouse, camera );
 
         // calculate objects intersecting the picking ray
-        var intersect = raycaster.intersectObject(floor);
-        if (intersect[0] && player) {
+        mouseMapIntersection = raycaster.intersectObject(floor);
+        if (mouseMapIntersection[0]) {
             var direction = new THREE.Vector3();
-            direction.subVectors(intersect[0].point, player.position);
+            direction.subVectors(mouseMapIntersection[0].point, player.position);
             direction.normalize();
             var angle = Math.atan2(direction.x, direction.z);
             player.rotation.z = angle; // this is weird cuz should be y (we rotated on player obj initialization)
@@ -251,28 +220,135 @@ var render = function () {
     renderer.render(scene, camera);
 }
 
-keyboard.domElement.addEventListener('keydown', onKeyDown);
-keyboard.domElement.addEventListener('keyup', onKeyUp);
-window.addEventListener( 'mousemove', onMouseMove, false );
-
-function onKeyDown(event) {
-        keyHash[String.fromCharCode(event.which)] = true;
-}
-
-function onKeyUp(event) {
-    keyHash[String.fromCharCode(event.which)] = false;
-}
-
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 
 function onMouseMove( event ) {
-
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
 
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
+
+function handleMovement(object) {
+    if (object.accel.z != 0) {
+        object.position.z += object.accel.z;
+        // If outta bounds bounce off the wall
+        if (isUpOOB(object) || isDownOOB(object)) {
+            object.position.z -= object.accel.z;
+            object.accel.z = -object.accel.z;
+        }
+        if (object.accel.z > 0) {
+            object.accel.z = object.accel.z > object.decelRate ? object.accel.z - object.decelRate : 0;
+        } else {
+            object.accel.z = object.accel.z < object.decelRate ? object.accel.z + object.decelRate : 0;
+        }
+    }
+
+    if (object.accel.x != 0) {
+        object.position.x += object.accel.x;
+        // If outta bounds bounce off the wall
+        if (isLeftOOB(object) || isRightOOB(object)) {
+            object.position.x -= object.accel.x;
+            object.accel.x = -object.accel.x;
+        }
+
+        if (object.accel.x > 0) {
+            object.accel.x = object.accel.x > object.decelRate ? object.accel.x - object.decelRate : 0;
+        } else {
+            object.accel.x = object.accel.x < object.decelRate ? object.accel.x + object.decelRate : 0;
+        }
+    }
+
+    if (object.life != null) {
+        object.life -= 1;
+        object.material.opacity = object.life / 100.0 + 10;
+        if (object.life < 0) {
+            scene.remove(object);
+            return;
+        }
+    }
+
+    movingObjects.push(object);
+}
+
+function isLeftOOB(object) {
+    return object.position.x <= -gridRadius;
+}
+
+function isRightOOB(object) {
+    return object.position.x > gridRadius;
+}
+
+function isUpOOB(object) {
+    return object.position.z > gridRadius;
+}
+
+function isDownOOB(object) {
+    return object.position.z <= -gridRadius;
+}
+
+keyboard.domElement.addEventListener('keydown', onKeyDown);
+keyboard.domElement.addEventListener('keyup', onKeyUp);
+window.addEventListener( 'mousemove', onMouseMove, false );
+window.addEventListener( 'click', onMouseClick, false );
+
+function onMouseClick(event) {
+    if (mouseMapIntersection[0]) {
+        var point = mouseMapIntersection[0].point;
+        createProjectile(player.position, point, phongMaterial);
+    }
+}
+
+function createProjectile(initPos, destination, material) {
+    var direction = new THREE.Vector3();
+    direction.subVectors(destination, initPos);
+    direction.normalize();
+    pGeo = new THREE.SphereGeometry(0.2, 4, 4);
+    pMaterial = new THREE.MeshBasicMaterial({
+        color: 'green'
+    });
+    pMaterial.transparent = true;
+    proj = new THREE.Mesh(pGeo, pMaterial);
+    proj.position.copy(initPos);
+    scene.add(proj);
+
+    addMovementProperties(proj, 2, 2, 0.01);
+    proj.accel = new THREE.Vector3(direction.x * proj.accelRate, 0 , direction.z * proj.accelRate);
+    proj.life = 100;
+    return proj;
+}
+
+function onKeyDown(event) {
+    keyHash[String.fromCharCode(event.which)] = true;
+}
+
+function onKeyUp(event) {
+    keyHash[String.fromCharCode(event.which)] = false;
+}
+
+function handleKeystroke() {
+    if (keyHash['W']) {
+        if (Math.abs(player.accel.z) < player.maxAccel) {
+            player.accel.z -= player.accelRate;
+        }
+    } else if (keyHash['S']) {
+        if (Math.abs(player.accel.z) < player.maxAccel) {
+            player.accel.z += player.accelRate;
+        }
+    }
+
+    if (keyHash['A']) {
+        if (Math.abs(player.accel.x) < player.maxAccel) {
+            player.accel.x -= player.accelRate;
+        }
+    } else if (keyHash['D']) {
+        if (Math.abs(player.accel.x) < player.maxAccel) {
+            player.accel.x += player.accelRate;
+        }
+    }
+}
+
 
 render();
