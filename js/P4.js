@@ -17,9 +17,10 @@ window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
-var floor = init_floor(GRID_RADIUS);
+var floor = init_floor();
 scene.add(floor);
 
+// ADD LIGHTING TO SCENE
 init_lighting(scene);
 
 var floatHeight = 1;

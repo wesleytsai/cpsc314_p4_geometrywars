@@ -42,7 +42,7 @@ function setup_camera(scene, cameraDefaultPos) {
     return camera;
 }
 
-function init_floor(gridRadius) {
+function init_floor() {
     var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(4, 4);
@@ -50,11 +50,11 @@ function init_floor(gridRadius) {
     var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
 
     var floorGeometry = new THREE.Geometry();
-    for (var i = -gridRadius; i < gridRadius+1; i += 2) {
-        floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
-        floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
-        floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
-        floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
+    for (var i = -GRID_RADIUS; i < GRID_RADIUS+1; i += 2) {
+        floorGeometry.vertices.push(new THREE.Vector3(i, 0, -GRID_RADIUS));
+        floorGeometry.vertices.push(new THREE.Vector3(i, 0, GRID_RADIUS));
+        floorGeometry.vertices.push(new THREE.Vector3(-GRID_RADIUS, 0, i));
+        floorGeometry.vertices.push(new THREE.Vector3(GRID_RADIUS, 0, i));
     }
 
     var floor = new THREE.Line(floorGeometry, floorMaterial, THREE.LinePieces);
