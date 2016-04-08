@@ -16,6 +16,7 @@ function create_player(object) {
     player.rotation.set(0, -Math.PI/2, 0);
     player.position.set(0, FLOAT_HEIGHT, 0);
     player.type = 'player';
+    player.health = PLAYER_START_HEALTH;
 
     addMovementProperties(player, 0.75, 0.1, 0.05);
     
