@@ -42,7 +42,7 @@ function setup_camera(scene, cameraDefaultPos) {
     return camera;
 }
 
-function init_floor() {
+function create_floor() {
     var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(4, 4);
@@ -61,6 +61,24 @@ function init_floor() {
     floor.position.y = -0.1;
 
     return floor;
+}
+
+function create_player(object) {
+    var player = object;
+    var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
+    player.traverse(function (child) {
+        if (child instanceof THREE.Mesh) {
+            child.material = new THREE.MeshPhongMaterial({
+                map: playerTexture
+            });
+        }
+    });
+    var playerScale = 0.01;
+    player.scale.set(playerScale, playerScale, playerScale);
+    player.rotation.set(0, -Math.PI/2, 0);
+    player.position.set(0, FLOAT_HEIGHT, 0);
+    player.type = 'player';
+    return player;
 }
 
 

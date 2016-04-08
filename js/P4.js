@@ -17,7 +17,7 @@ window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
-var floor = init_floor();
+var floor = create_floor();
 scene.add(floor);
 
 // ADD LIGHTING TO SCENE
@@ -25,20 +25,7 @@ init_lighting(scene);
 
 
 function onLoadPlayer(object) {
-    player = object;
-    var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
-    player.traverse(function (child) {
-        if (child instanceof THREE.Mesh) {
-            child.material = new THREE.MeshPhongMaterial({
-                map: playerTexture
-            });
-        }
-    });
-    var playerScale = 0.01;
-    player.scale.set(playerScale, playerScale, playerScale);
-    player.rotation.set(0, -Math.PI/2, 0);
-    player.position.set(0, FLOAT_HEIGHT, 0);
-    player.type = 'player';
+    player = create_player(object);
     scene.add(player);
     addMovementProperties(player, 0.75, 0.1, 0.05);
 }
