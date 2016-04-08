@@ -14,6 +14,10 @@ the project below.
 ### HowTo
 ### Sources
 
+* http://www.w3schools.com/howto/howto_css_modals.asp
+* https://stackoverflow.com/questions/4787431/check-fps-in-js
+* http://bradsknutson.com/blog/display-loading-image-while-page-loads/
+
 ### External Resources
 
 * None
