@@ -33,11 +33,9 @@ window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
-/*
 var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(4, 4);
-*/
 
 var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
 
@@ -101,18 +99,6 @@ var blinnphongMaterial = new THREE.ShaderMaterial({
     },
 });
 
-var coolwarmMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        lightColor: {type: 'c', value: lightColor},
-        ambientColor: {type: 'c', value: ambientColor},
-        lightPosition: {type: 'v3', value: lightPosition},
-        kAmbient: {type: 'f', value: kAmbient},
-        kDiffuse: {type: 'f', value: kDiffuse},
-        kSpecular: {type: 'f', value: kSpecular},
-        shininess: {type: 'f', value: shininess},
-    },
-});
-
 shaderFiles = [
     'glsl/gouraud.vs.glsl',
     'glsl/gouraud.fs.glsl',
@@ -120,8 +106,6 @@ shaderFiles = [
     'glsl/phong.fs.glsl',
     'glsl/blinnphong.vs.glsl',
     'glsl/blinnphong.fs.glsl',
-    'glsl/coolwarm.vs.glsl',
-    'glsl/coolwarm.fs.glsl',
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function (shaders) {
@@ -136,10 +120,6 @@ new THREE.SourceLoader().load(shaderFiles, function (shaders) {
     blinnphongMaterial.vertexShader = shaders['glsl/blinnphong.vs.glsl'];
     blinnphongMaterial.fragmentShader = shaders['glsl/blinnphong.fs.glsl'];
     blinnphongMaterial.needsUpdate = true;
-
-    coolwarmMaterial.vertexShader = shaders['glsl/coolwarm.vs.glsl'];
-    coolwarmMaterial.fragmentShader = shaders['glsl/coolwarm.fs.glsl'];
-    coolwarmMaterial.needsUpdate = true;
 })
 
 // LOAD ARMADILLO
@@ -167,71 +147,125 @@ function onLoadPlayer(object) {
             child.material = material;
         }
     });
-    var scale = 0.01
+    var scale = 0.05
     var floatHeight = 1;
     player.scale.set(scale, scale, scale);
-    player.rotation.set(-Math.PI/2, 0, 0);
+    player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
     scene.add(player);
+
+    player.xAccel = 0;
+    player.yAccel = 0;
+    player.zAccel = 0;
 };
 
 var player;
-loadOBJ('obj/player.obj', onLoadPlayer);
-
+loadOBJ('obj/player3.stl', onLoadPlayer);
 
 // CREATE SPHERES
 var sphere = new THREE.SphereGeometry(1, 32, 32);
 var gem_gouraud = new THREE.Mesh(sphere, gouraudMaterial); // tip: make different materials for each sphere
 gem_gouraud.position.set(-3, 1, -1);
-scene.add(gem_gouraud);
+//scene.add(gem_gouraud);
 gem_gouraud.parent = floor;
 
 var gem_phong = new THREE.Mesh(sphere, phongMaterial);
 gem_phong.position.set(-1, 1, -1);
-scene.add(gem_phong);
+//scene.add(gem_phong);
 gem_phong.parent = floor;
 
 var gem_phong_blinn = new THREE.Mesh(sphere, blinnphongMaterial);
 gem_phong_blinn.position.set(1, 1, -1);
-scene.add(gem_phong_blinn);
+//scene.add(gem_phong_blinn);
 gem_phong_blinn.parent = floor;
 
-var gem_toon = new THREE.Mesh(sphere, coolwarmMaterial);
-gem_toon.position.set(3, 1, -1);
-scene.add(gem_toon);
-gem_toon.parent = floor;
-
 // SETUP UPDATE CALL-BACK
+var keyHash = {};
+var movementSpeed = 0.1;
 var keyboard = new THREEx.KeyboardState();
+var decelRate = movementSpeed / 3;
+var maxAccel = 1;
 var render = function () {
     // tip: change armadillo shading here according to keyboard
-    if (keyHash['W']) {
-        player.position.z -= movementSpeed;
-    } else if (keyHash['S']) {
-        player.position.z += movementSpeed;
-    }
+    if (player) {
+        if (keyHash['W']) {
+            if (Math.abs(player.zAccel) < maxAccel) {
+                player.zAccel -= movementSpeed;
+            }
+        } else if (keyHash['S']) {
+            if (Math.abs(player.zAccel) < maxAccel) {
+                player.zAccel += movementSpeed;
+            }
+        }
 
-    if (keyHash['A']) {
-        player.position.x -= movementSpeed;
-    } else if (keyHash['D']) {
-        player.position.x += movementSpeed;
-    }
+        if (keyHash['A']) {
+            if (Math.abs(player.xAccel) < maxAccel) {
+                player.xAccel -= movementSpeed;
+            }
+        } else if (keyHash['D']) {
+            if (Math.abs(player.xAccel) < maxAccel) {
+                player.xAccel += movementSpeed;
+            }
+        }
 
+        if (player.zAccel != 0) {
+            player.position.z += player.zAccel;
+            if (player.zAccel > 0) {
+                player.zAccel = player.zAccel > decelRate ? player.zAccel - decelRate : 0;
+            } else {
+                player.zAccel = player.zAccel < decelRate ? player.zAccel + decelRate : 0;
+            }
+        }
+
+        if (player.xAccel != 0) {
+            player.position.x += player.xAccel;
+            if (player.xAccel > 0) {
+                player.xAccel = player.xAccel > decelRate ? player.xAccel - decelRate : 0;
+            } else {
+                player.xAccel = player.xAccel < decelRate ? player.xAccel + decelRate : 0;
+            }
+        }
+
+        // Picking stuff
+        // update the picking ray with the camera and mouse position
+        raycaster.setFromCamera( mouse, camera );
+
+        // calculate objects intersecting the picking ray
+        var intersect = raycaster.intersectObject(floor);
+        if (intersect[0] && player) {
+            var direction = new THREE.Vector3();
+            direction.subVectors(intersect[0].point, player.position);
+            direction.normalize();
+            var angle = Math.atan2(direction.x, direction.z);
+            player.rotation.z = angle;
+        }
+    }
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 }
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
 keyboard.domElement.addEventListener('keyup', onKeyUp);
+window.addEventListener( 'mousemove', onMouseMove, false );
 
-var keyHash = {};
-var movementSpeed = 1;
 function onKeyDown(event) {
         keyHash[String.fromCharCode(event.which)] = true;
 }
 
 function onKeyUp(event) {
     keyHash[String.fromCharCode(event.which)] = false;
+}
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+
+function onMouseMove( event ) {
+
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
 render();
