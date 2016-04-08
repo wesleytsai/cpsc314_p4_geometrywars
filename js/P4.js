@@ -42,15 +42,13 @@ var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
 // SETUP UPDATE CALL-BACK
-var keyHash = {};
-var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
 var ticks = 0;
 var render = function () {
 
     if (player) {
         resetSpacialHash();
-        handleKeystroke();
+        handleKeystroke(player);
 
         for (var i = 0; i < movingObjects.length; i++) {
             var object = movingObjects.shift();
@@ -108,14 +106,6 @@ var render = function () {
 
 var raycaster = new THREE.Raycaster();
 
-
-keyboard.domElement.addEventListener('keydown', onKeyDown);
-keyboard.domElement.addEventListener('keyup', onKeyUp);
-window.addEventListener('mousemove', onMouseMove, false);
-window.addEventListener('mousedown', onMouseClick, false);
-
-
-
 function createProjectile(initPos, destination) {
     var direction = new THREE.Vector3();
     direction.subVectors(destination, initPos);
@@ -134,36 +124,6 @@ function createProjectile(initPos, destination) {
     proj.accel.set(direction.x * proj.accelRate, 0, direction.z * proj.accelRate);
     proj.life = 100;
     return proj;
-}
-
-function onKeyDown(event) {
-    keyHash[String.fromCharCode(event.which)] = true;
-}
-
-function onKeyUp(event) {
-    keyHash[String.fromCharCode(event.which)] = false;
-}
-
-function handleKeystroke() {
-    if (keyHash['W']) {
-        if (Math.abs(player.accel.z) < player.maxAccel) {
-            player.accel.z -= player.accelRate;
-        }
-    } else if (keyHash['S']) {
-        if (Math.abs(player.accel.z) < player.maxAccel) {
-            player.accel.z += player.accelRate;
-        }
-    }
-
-    if (keyHash['A']) {
-        if (Math.abs(player.accel.x) < player.maxAccel) {
-            player.accel.x -= player.accelRate;
-        }
-    } else if (keyHash['D']) {
-        if (Math.abs(player.accel.x) < player.maxAccel) {
-            player.accel.x += player.accelRate;
-        }
-    }
 }
 
 
