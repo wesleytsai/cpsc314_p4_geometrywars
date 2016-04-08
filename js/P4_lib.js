@@ -1,4 +1,4 @@
-// LOAD ARMADILLO
+// Load 3D object
 function loadOBJ(file, onLoad) {
     var onProgress = function (query) {
         if (query.lengthComputable) {

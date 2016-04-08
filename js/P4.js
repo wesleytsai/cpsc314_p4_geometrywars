@@ -1,6 +1,3 @@
-require('P4_lib');
-
-
 var scene = new THREE.Scene();
 
 // SETUP RENDERER
