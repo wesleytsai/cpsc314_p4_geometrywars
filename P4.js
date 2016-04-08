@@ -136,6 +136,8 @@ var movingObjects = []
 var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
+var ticks = 0;
+var enemiesSpawnedTillNow = 0;
 var render = function () {
 
     if (player) {
@@ -178,8 +180,16 @@ var render = function () {
             player.rotation.z = angle; // this is weird cuz should be y (we rotated on player obj initialization)
         }
 
+        /// SPAWN ENEMIES ///
 
+        if (ticks % 100 == 0) {
+            for (var i = 0; i < ticks / 1000; i++) {
+                createEnemyRandom();
+                createEnemyFollower();
+            }
+        }
 
+        ticks += 1;
     }
 
     requestAnimationFrame(render);
@@ -198,6 +208,7 @@ function handleCollision(object) {
         var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
         for (i in collidedObjects) {
             if (collidedObjects[i].type == 'enemy') {
+                object.life = 0;
                 collidedObjects[i].life = 0;
             }
         }
@@ -284,8 +295,6 @@ function onMouseClick(event) {
     if (mouseMapIntersection[0]) {
         var point = mouseMapIntersection[0].point;
         createProjectile(player.position, point);
-        createEnemyRandom();
-        createEnemyFollower();
     }
 }
 
