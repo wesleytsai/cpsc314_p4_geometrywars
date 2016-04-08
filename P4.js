@@ -115,6 +115,7 @@ function onLoadPlayer(object) {
     player.scale.set(playerScale , playerScale, playerScale);
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
+    player.type = 'player';
     scene.add(player);
     addMovementProperties(player, 0.75, 0.1, 0.05);
 };
@@ -136,12 +137,26 @@ var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
 var render = function () {
-    // tip: change armadillo shading here according to keyboard
+
     if (player) {
+        resetSpacialHash();
         handleKeystroke();
 
         for (var i = 0; i < movingObjects.length; i++) {
-            handleMovement(movingObjects.shift());
+            var object = movingObjects.shift();
+            handleMovement(object);
+            handleCollision(object);
+
+            // Handle Death
+            if (object.life != null) {
+                object.life -= 1;
+                object.material.opacity = object.life / 100.0 + 0.1;
+                if (object.life < 0) {
+                    scene.remove(object);
+                    continue;
+                }
+            }
+            movingObjects.push(object);
         }
 
         /// CAMERA WORK ///
@@ -163,19 +178,30 @@ var render = function () {
             player.rotation.z = angle; // this is weird cuz should be y (we rotated on player obj initialization)
         }
 
-        resetSpacialHash();
 
-        var collidedObjects = getCollidedObjectsInRadius(player.position, 0.5);
-        for (i in collidedObjects) {
-            if (collidedObjects[i].type == 'enemy') {
-                scene.remove(player);
-            }
-        }
 
     }
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
+}
+
+function handleCollision(object) {
+    if (object.type == 'player') {
+        var collidedObjects = getCollidedObjectsInRadius(object.position, 1);
+        for (i in collidedObjects) {
+            if (collidedObjects[i].type == 'enemy') {
+                scene.remove(player);
+            }
+        }
+    } else if (object.type == 'projectile') {
+        var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
+        for (i in collidedObjects) {
+            if (collidedObjects[i].type == 'enemy') {
+                collidedObjects[i].life = 0;
+            }
+        }
+    }
 }
 
 var raycaster = new THREE.Raycaster();
@@ -231,16 +257,6 @@ function handleMovement(object) {
         }
     }
 
-    if (object.life != null) {
-        object.life -= 1;
-        object.material.opacity = object.life / 100.0 + 10;
-        if (object.life < 0) {
-            scene.remove(object);
-            return;
-        }
-    }
-
-    movingObjects.push(object);
 }
 
 function isLeftOOB(object) {
@@ -267,7 +283,7 @@ window.addEventListener( 'mousedown', onMouseClick, false );
 function onMouseClick(event) {
     if (mouseMapIntersection[0]) {
         var point = mouseMapIntersection[0].point;
-        createProjectile(player.position, point, phongMaterial);
+        createProjectile(player.position, point);
         createEnemyRandom();
         createEnemyFollower();
     }
@@ -314,11 +330,9 @@ function resetSpacialHash() {
 }
 
 function getCollidedObjectsInRadius(pos, radius) {
-    if (!spacialHash) {
-        console.log("Error: no spacialHash?");
-        return null;
-    }
     var list = [];
+    // so we don't need to square root distance calculations
+    var radiusSqr = radius * radius;
 
     // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
     // SPAGHETTI BUT ITS FAST I SWEAR
@@ -327,8 +341,9 @@ function getCollidedObjectsInRadius(pos, radius) {
             if (x > 0 && x < gridRadius * 2 && y > 0 && y < gridRadius * 2) {
                 var entities = spacialHash[x][y];
                 for (i in entities) {
-                    if (entities[i].d)
-                    list.push(entities[i]);
+                    if (pos.distanceTo(entities[i].position) < radiusSqr) {
+                        list.push(entities[i]);
+                    }
                 }
             }
         }
@@ -365,9 +380,9 @@ function createProjectile(initPos, destination) {
     direction.normalize();
     geo = new THREE.SphereGeometry(0.2, 4, 4);
     mat = new THREE.MeshBasicMaterial({
-        color: 'white'
+        color: 'white',
+        transparent: true,
     });
-    mat.transparent = true;
     proj = new THREE.Mesh(geo, mat);
     proj.position.copy(initPos);
     scene.add(proj);
