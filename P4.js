@@ -14,13 +14,12 @@ document.body.appendChild(renderer.domElement);
 // SETUP CAMERA
 var aspect = window.innerWidth / window.innerHeight;
 var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
-camera.position.set(10, 15, 40);
-camera.lookAt(scene.position);
+var cameraDefaultPos = new THREE.Vector3(0, 40, 40);
+camera.position.copy(cameraDefaultPos);
+camera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(camera);
 
 // SETUP ORBIT CONTROL OF THE CAMERA
-var controls = new THREE.OrbitControls(camera);
-controls.damping = 0.2;
 
 // ADAPT TO WINDOW RESIZE
 function resize() {
@@ -147,20 +146,21 @@ function onLoadPlayer(object) {
             child.material = material;
         }
     });
-    var scale = 0.05
+    var playerScale = 0.02
     var floatHeight = 1;
-    player.scale.set(scale, scale, scale);
+    player.scale.set(playerScale , playerScale, playerScale);
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
     scene.add(player);
 
+    // TODO: refactor accel
     player.xAccel = 0;
     player.yAccel = 0;
     player.zAccel = 0;
 };
 
 var player;
-loadOBJ('obj/player3.stl', onLoadPlayer);
+loadOBJ('obj/player.obj', onLoadPlayer);
 
 // CREATE SPHERES
 var sphere = new THREE.SphereGeometry(1, 32, 32);
@@ -184,7 +184,7 @@ var keyHash = {};
 var movementSpeed = 0.1;
 var keyboard = new THREEx.KeyboardState();
 var decelRate = movementSpeed / 3;
-var maxAccel = 1;
+var maxAccel = 0.5;
 var render = function () {
     // tip: change armadillo shading here according to keyboard
     if (player) {
@@ -226,7 +226,14 @@ var render = function () {
             }
         }
 
-        // Picking stuff
+        /// CAMERA WORK ///
+        if (player) {
+            camera.position.x = player.position.x / 4;
+            camera.position.z = player.position.z / 4 + cameraDefaultPos.z;
+            camera.lookAt(player.position);
+        }
+
+        /// PICKING PLAYER FACING DIRECTION ///
         // update the picking ray with the camera and mouse position
         raycaster.setFromCamera( mouse, camera );
 
@@ -237,7 +244,7 @@ var render = function () {
             direction.subVectors(intersect[0].point, player.position);
             direction.normalize();
             var angle = Math.atan2(direction.x, direction.z);
-            player.rotation.z = angle;
+            player.rotation.z = angle; // this is weird cuz should be y (we rotated on player obj initialization)
         }
     }
     requestAnimationFrame(render);
