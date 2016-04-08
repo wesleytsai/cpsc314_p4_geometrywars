@@ -51,5 +51,6 @@ function render () {
 
 
 $(window).load(function () {
+    $(".loader").fadeOut("slow");
     render()
 });
