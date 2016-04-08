@@ -3,6 +3,7 @@
 
 var movingObjects = [];
 var spacialHash = [];
+var score = 0;
 
 function resetSpacialHash() {
     spacialHash = [];
@@ -56,6 +57,7 @@ function handleCollision(player, object) {
             if (collidedObjects[i].type == 'enemy') {
                 object.life = 0;
                 collidedObjects[i].life = 0;
+                score++;
             }
         }
     }

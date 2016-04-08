@@ -89,6 +89,9 @@ var render = function () {
         ticks += 1;
     }
 
+    // Write score
+    document.getElementById('score').innerHTML = score;
+
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 };
