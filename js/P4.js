@@ -23,21 +23,21 @@ scene.add(floor);
 // ADD LIGHTING TO SCENE
 init_lighting(scene);
 
-var floatHeight = 1;
-var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
+
 function onLoadPlayer(object) {
     player = object;
+    var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
     player.traverse(function (child) {
         if (child instanceof THREE.Mesh) {
             child.material = new THREE.MeshPhongMaterial({
-                map: playerTexture,
+                map: playerTexture
             });
         }
     });
-    var playerScale = 0.01
+    var playerScale = 0.01;
     player.scale.set(playerScale, playerScale, playerScale);
     player.rotation.set(0, -Math.PI/2, 0);
-    player.position.set(0, floatHeight, 0);
+    player.position.set(0, FLOAT_HEIGHT, 0);
     player.type = 'player';
     scene.add(player);
     addMovementProperties(player, 0.75, 0.1, 0.05);
@@ -221,7 +221,7 @@ function createEnemyRandom() {
     var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
-    enemy.position.set(posX, floatHeight, posZ);
+    enemy.position.set(posX, FLOAT_HEIGHT, posZ);
     enemy.type = 'enemy'
     addMovementProperties(enemy, 1, player.maxAccel / 2, 0);
     scene.add(enemy);
@@ -283,7 +283,7 @@ function createEnemyFollower() {
     var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
-    enemy.position.set(posX, floatHeight, posZ);
+    enemy.position.set(posX, FLOAT_HEIGHT, posZ);
     enemy.type = 'enemy';
     addMovementProperties(enemy, player.maxAccel / 2, 0.02, 0.005);
     enemy.movementType = 'follow';
