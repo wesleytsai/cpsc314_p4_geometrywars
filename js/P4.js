@@ -1,18 +1,11 @@
 var scene = new THREE.Scene();
 
 // SETUP RENDERER
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff, 0);
-document.body.appendChild(renderer.domElement);
+var renderer = setup_renderer();
 
 // SETUP CAMERA
-var aspect = window.innerWidth / window.innerHeight;
-var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
 var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
-camera.position.copy(cameraDefaultPos);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-scene.add(camera);
+var camera = setup_camera(scene, cameraDefaultPos);
 
 // SETUP ORBIT CONTROL OF THE CAMERA
 

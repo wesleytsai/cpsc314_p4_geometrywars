@@ -14,3 +14,22 @@ function loadOBJ(file, onLoad) {
     var loader = new THREE.OBJLoader();
     loader.load(file, onLoad, onProgress, onError);
 }
+
+
+function setup_renderer() {
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0xffffff, 0);
+    document.body.appendChild(renderer.domElement);
+    return renderer;
+}
+
+
+function setup_camera(scene, cameraDefaultPos) {
+    var aspect = window.innerWidth / window.innerHeight;
+    var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
+    camera.position.copy(cameraDefaultPos);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    scene.add(camera);
+    return camera;
+}
