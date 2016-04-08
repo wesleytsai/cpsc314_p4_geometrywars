@@ -30,13 +30,6 @@ function onLoadPlayer(object) {
     addMovementProperties(player, 0.75, 0.1, 0.05);
 }
 
-function addMovementProperties(object, maxAccel, accelRate, decelRate) {
-    object.maxAccel = maxAccel;
-    object.accelRate = accelRate;
-    object.accel = new THREE.Vector3(0, 0, 0);
-    object.decelRate = decelRate;
-    movingObjects.push(object);
-}
 
 var player;
 loadOBJ('obj/player.obj', onLoadPlayer);

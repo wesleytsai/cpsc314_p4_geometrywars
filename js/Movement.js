@@ -45,6 +45,15 @@ function handleMovement(player, object) {
 
 }
 
+function addMovementProperties(object, maxAccel, accelRate, decelRate) {
+    object.maxAccel = maxAccel;
+    object.accelRate = accelRate;
+    object.accel = new THREE.Vector3(0, 0, 0);
+    object.decelRate = decelRate;
+    // For Collision (movingObjects is from Collision)
+    movingObjects.push(object);
+}
+
 
 ////////////////////
 // Bounds Testing //
