@@ -90,10 +90,7 @@ var render = function () {
     }
 
     // Write UI
-    document.getElementById('score').innerHTML = score;
-    if (player) {
-        document.getElementById('player_health').innerHTML = player.health;
-    }
+    writeUI(player, score);
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);

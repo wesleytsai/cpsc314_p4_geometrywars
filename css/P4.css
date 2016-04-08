@@ -16,11 +16,8 @@ body {
     text-align: left;
     z-index: 100;
     display:block;
-    font-size: xx-large;
+    font-size: x-large;
 }
-#score {
-    display: inline;
-}
-#player_health {
+.ui_element {
     display: inline;
 }
