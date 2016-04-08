@@ -105,24 +105,6 @@ var render = function () {
     renderer.render(scene, camera);
 };
 
-function handleCollision(object) {
-    if (object.type == 'player') {
-        var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
-        for (i in collidedObjects) {
-            if (collidedObjects[i].type == 'enemy') {
-                player.life = 0;
-            }
-        }
-    } else if (object.type == 'projectile') {
-        var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
-        for (i in collidedObjects) {
-            if (collidedObjects[i].type == 'enemy') {
-                object.life = 0;
-                collidedObjects[i].life = 0;
-            }
-        }
-    }
-}
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
@@ -204,27 +186,6 @@ function createEnemyRandom() {
     scene.add(enemy);
 
     enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
-}
-
-function getCollidedObjectsInRadius(pos, radius) {
-    var list = [];
-    // so we don't need to square root distance calculations
-    var radiusSqr = radius * radius;
-
-    // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
-    for (var x = Math.floor(pos.x) + GRID_RADIUS - Math.ceil(radius); x < Math.ceil(pos.x) + GRID_RADIUS + Math.ceil(radius); x++) {
-        for (var y = Math.floor(pos.y) + GRID_RADIUS - Math.ceil(radius); y < Math.ceil(pos.y) + GRID_RADIUS + Math.ceil(radius); y++) {
-            if (x > 0 && x < GRID_RADIUS * 2 && y > 0 && y < GRID_RADIUS * 2) {
-                var entities = spacialHash[x][y];
-                for (i in entities) {
-                    if (pos.distanceTo(entities[i].position) < radiusSqr) {
-                        list.push(entities[i]);
-                    }
-                }
-            }
-        }
-    }
-    return list;
 }
 
 var enemyFollowGeo = new THREE.DodecahedronGeometry(0.4);
