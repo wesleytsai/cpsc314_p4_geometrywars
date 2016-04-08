@@ -23,19 +23,16 @@ scene.add(floor);
 // ADD LIGHTING TO SCENE
 init_lighting(scene);
 
-
+// CREATE PLAYER
+var player;
 function onLoadPlayer(object) {
     player = create_player(object);
     scene.add(player);
-    addMovementProperties(player, 0.75, 0.1, 0.05);
 }
-
-
-var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
+
 // SETUP UPDATE CALL-BACK
-var mouseMapIntersection;
 var ticks = 0;
 var render = function () {
 
@@ -98,26 +95,5 @@ var render = function () {
 
 
 var raycaster = new THREE.Raycaster();
-
-function createProjectile(initPos, destination) {
-    var direction = new THREE.Vector3();
-    direction.subVectors(destination, initPos);
-    direction.normalize();
-    geo = new THREE.SphereGeometry(0.2, 4, 4);
-    mat = new THREE.MeshBasicMaterial({
-        color: 'white',
-        transparent: true
-    });
-    proj = new THREE.Mesh(geo, mat);
-    proj.position.copy(initPos);
-    scene.add(proj);
-    proj.type = 'projectile';
-
-    addMovementProperties(proj, 2, 2, 0.01);
-    proj.accel.set(direction.x * proj.accelRate, 0, direction.z * proj.accelRate);
-    proj.life = 100;
-    return proj;
-}
-
 
 render();

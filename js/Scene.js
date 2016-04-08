@@ -2,29 +2,6 @@
 
 
 ////////////////
-// Misc. Util //
-////////////////
-
-function loadOBJ(file, onLoad) {
-    // Load 3D object
-
-    var onProgress = function (query) {
-        if (query.lengthComputable) {
-            var percentComplete = query.loaded / query.total * 100;
-            console.log(Math.round(percentComplete, 2) + '% downloaded');
-        }
-    };
-
-    var onError = function () {
-        console.log('Failed to load ' + file);
-    };
-
-    var loader = new THREE.OBJLoader();
-    loader.load(file, onLoad, onProgress, onError);
-}
-
-
-////////////////
 // Scene Init //
 ////////////////
 
@@ -64,22 +41,4 @@ function create_floor() {
     floor.position.y = -0.1;
 
     return floor;
-}
-
-function create_player(object) {
-    var player = object;
-    var playerTexture = new THREE.TextureLoader().load('images/playerTexture.jpg');
-    player.traverse(function (child) {
-        if (child instanceof THREE.Mesh) {
-            child.material = new THREE.MeshPhongMaterial({
-                map: playerTexture
-            });
-        }
-    });
-    var playerScale = 0.01;
-    player.scale.set(playerScale, playerScale, playerScale);
-    player.rotation.set(0, -Math.PI/2, 0);
-    player.position.set(0, FLOAT_HEIGHT, 0);
-    player.type = 'player';
-    return player;
 }

@@ -6,6 +6,7 @@
 ///////////
 
 var mouse = new THREE.Vector2();
+var mouseMapIntersection;
 
 function onMouseMove(event) {
     // calculate mouse position in normalized device coordinates
