@@ -1,25 +1,14 @@
-/**
- * UBC CPSC 314, January 2016
- * Project 3 Template
- */
-
 var scene = new THREE.Scene();
 
 // SETUP RENDERER
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff, 0);
-document.body.appendChild(renderer.domElement);
+var renderer = setup_renderer();
 
 // SETUP CAMERA
-var aspect = window.innerWidth / window.innerHeight;
-var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
 var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
-camera.position.copy(cameraDefaultPos);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-scene.add(camera);
+var camera = setup_camera(scene, cameraDefaultPos);
 
 // SETUP ORBIT CONTROL OF THE CAMERA
+// TODO?
 
 // ADAPT TO WINDOW RESIZE
 function resize() {
@@ -27,28 +16,11 @@ function resize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 }
-
 window.addEventListener('resize', resize);
 resize();
 
 // FLOOR WITH CHECKERBOARD
-var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
-floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-floorTexture.repeat.set(4, 4);
-
-var floorMaterial = new THREE.LineBasicMaterial({color: 0x2121ae});
-
-var floorGeometry = new THREE.Geometry();
-var gridRadius = 30;
-for (var i = -gridRadius; i < gridRadius+1; i += 2) {
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, -gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(i, 0, gridRadius));
-    floorGeometry.vertices.push(new THREE.Vector3(-gridRadius, 0, i));
-    floorGeometry.vertices.push(new THREE.Vector3(gridRadius, 0, i));
-}
-
-var floor = new THREE.Line(floorGeometry, floorMaterial, THREE.LinePieces);
-floor.position.y = -0.1;
+var floor = init_floor(GRID_RADIUS);
 scene.add(floor);
 
 // LIGHTING UNIFORMS
@@ -70,37 +42,21 @@ var phongMaterial = new THREE.ShaderMaterial({
         kAmbient: {type: 'f', value: kAmbient},
         kDiffuse: {type: 'f', value: kDiffuse},
         kSpecular: {type: 'f', value: kSpecular},
-        shininess: {type: 'f', value: shininess},
-    },
+        shininess: {type: 'f', value: shininess}
+    }
 });
 
 shaderFiles = [
     'glsl/phong.vs.glsl',
-    'glsl/phong.fs.glsl',
+    'glsl/phong.fs.glsl'
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function (shaders) {
     phongMaterial.vertexShader = shaders['glsl/phong.vs.glsl'];
     phongMaterial.fragmentShader = shaders['glsl/phong.fs.glsl'];
     phongMaterial.needsUpdate = true;
-})
+});
 
-// LOAD ARMADILLO
-function loadOBJ(file, onLoad) {
-    var onProgress = function (query) {
-        if (query.lengthComputable) {
-            var percentComplete = query.loaded / query.total * 100;
-            console.log(Math.round(percentComplete, 2) + '% downloaded');
-        }
-    };
-
-    var onError = function () {
-        console.log('Failed to load ' + file);
-    };
-
-    var loader = new THREE.OBJLoader();
-    loader.load(file, onLoad, onProgress, onError);
-}
 
 var floatHeight = 1;
 function onLoadPlayer(object) {
@@ -111,14 +67,14 @@ function onLoadPlayer(object) {
             child.material = material;
         }
     });
-    var playerScale = 0.02
+    var playerScale = 0.02;
     player.scale.set(playerScale , playerScale, playerScale);
     player.rotation.set(-Math.PI/2, 0, Math.PI);
     player.position.set(0, floatHeight, 0);
     player.type = 'player';
     scene.add(player);
     addMovementProperties(player, 0.75, 0.1, 0.05);
-};
+}
 
 function addMovementProperties(object, maxAccel, accelRate, decelRate) {
     object.maxAccel = maxAccel;
@@ -132,7 +88,7 @@ var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
 // SETUP UPDATE CALL-BACK
-var movingObjects = []
+var movingObjects = [];
 var keyHash = {};
 var keyboard = new THREEx.KeyboardState();
 var mouseMapIntersection;
@@ -194,7 +150,7 @@ var render = function () {
 
     requestAnimationFrame(render);
     renderer.render(scene, camera);
-}
+};
 
 function handleCollision(object) {
     if (object.type == 'player') {
@@ -271,19 +227,19 @@ function handleMovement(object) {
 }
 
 function isLeftOOB(object) {
-    return object.position.x <= -gridRadius;
+    return object.position.x <= -GRID_RADIUS;
 }
 
 function isRightOOB(object) {
-    return object.position.x > gridRadius;
+    return object.position.x > GRID_RADIUS;
 }
 
 function isUpOOB(object) {
-    return object.position.z > gridRadius;
+    return object.position.z > GRID_RADIUS;
 }
 
 function isDownOOB(object) {
-    return object.position.z <= -gridRadius;
+    return object.position.z <= -GRID_RADIUS;
 }
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
@@ -304,12 +260,12 @@ function createEnemyRandom() {
 
     geo = new THREE.RingGeometry(0.4, 0.6);
     mat = new THREE.MeshBasicMaterial({
-        color: 'red',
+        color: 'red'
     });
 
     enemy = new THREE.Mesh(geo, mat);
-    var posX = Math.random() * gridRadius * 2 - gridRadius;
-    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
+    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
     enemy.type = 'enemy'
@@ -323,17 +279,17 @@ var spacialHash = [];
 
 function resetSpacialHash() {
     spacialHash = [];
-    for (var x = 0; x < gridRadius * 2; x++) {
+    for (var x = 0; x < GRID_RADIUS * 2; x++) {
         spacialHash.push([]);
-        for (var y = 0; y < gridRadius * 2; y++) {
+        for (var y = 0; y < GRID_RADIUS * 2; y++) {
             spacialHash[x][y] = [];
         }
     }
 
     for (var i = 0; i < movingObjects.length; i++) {
         var object = movingObjects[i];
-        var posX = Math.floor(object.position.x) + gridRadius;
-        var posY = Math.floor(object.position.y) + gridRadius;
+        var posX = Math.floor(object.position.x) + GRID_RADIUS;
+        var posY = Math.floor(object.position.y) + GRID_RADIUS;
         spacialHash[posX][posY].push(object);
     }
 }
@@ -345,9 +301,9 @@ function getCollidedObjectsInRadius(pos, radius) {
 
     // Pos could be negative, so we shift it to start from 0, then search through the radius for other entities
     // SPAGHETTI BUT ITS FAST I SWEAR
-    for (var x = Math.floor(pos.x) + gridRadius - Math.ceil(radius); x < Math.ceil(pos.x) + gridRadius + Math.ceil(radius); x++) {
-        for (var y = Math.floor(pos.y) + gridRadius - Math.ceil(radius); y < Math.ceil(pos.y) + gridRadius + Math.ceil(radius); y++) {
-            if (x > 0 && x < gridRadius * 2 && y > 0 && y < gridRadius * 2) {
+    for (var x = Math.floor(pos.x) + GRID_RADIUS - Math.ceil(radius); x < Math.ceil(pos.x) + GRID_RADIUS + Math.ceil(radius); x++) {
+        for (var y = Math.floor(pos.y) + GRID_RADIUS - Math.ceil(radius); y < Math.ceil(pos.y) + GRID_RADIUS + Math.ceil(radius); y++) {
+            if (x > 0 && x < GRID_RADIUS * 2 && y > 0 && y < GRID_RADIUS * 2) {
                 var entities = spacialHash[x][y];
                 for (i in entities) {
                     if (pos.distanceTo(entities[i].position) < radiusSqr) {
@@ -367,12 +323,12 @@ function createEnemyFollower() {
     geo = new THREE.DodecahedronGeometry(0.4);
     mat = new THREE.MeshBasicMaterial({
         color: 'yellow',
-        wireframe: true,
+        wireframe: true
     });
 
     enemy = new THREE.Mesh(geo, mat);
-    var posX = Math.random() * gridRadius * 2 - gridRadius;
-    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
+    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
     enemy.type = 'enemy';
