@@ -107,15 +107,6 @@ var render = function () {
 
 
 var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
-
-function onMouseMove(event) {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
-}
 
 
 keyboard.domElement.addEventListener('keydown', onKeyDown);
@@ -123,12 +114,6 @@ keyboard.domElement.addEventListener('keyup', onKeyUp);
 window.addEventListener('mousemove', onMouseMove, false);
 window.addEventListener('mousedown', onMouseClick, false);
 
-function onMouseClick(event) {
-    if (mouseMapIntersection[0]) {
-        var point = mouseMapIntersection[0].point;
-        createProjectile(player.position, point);
-    }
-}
 
 
 function createProjectile(initPos, destination) {
@@ -138,7 +123,7 @@ function createProjectile(initPos, destination) {
     geo = new THREE.SphereGeometry(0.2, 4, 4);
     mat = new THREE.MeshBasicMaterial({
         color: 'white',
-        transparent: true,
+        transparent: true
     });
     proj = new THREE.Mesh(geo, mat);
     proj.position.copy(initPos);
