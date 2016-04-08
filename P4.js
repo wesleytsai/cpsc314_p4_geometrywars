@@ -14,7 +14,7 @@ document.body.appendChild(renderer.domElement);
 // SETUP CAMERA
 var aspect = window.innerWidth / window.innerHeight;
 var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
-var cameraDefaultPos = new THREE.Vector3(0, 40, 40);
+var cameraDefaultPos = new THREE.Vector3(0, 35, 50);
 camera.position.copy(cameraDefaultPos);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(camera);
@@ -62,18 +62,6 @@ var kSpecular = 0.8;
 var shininess = 10.0;
 
 // MATERIALS
-var gouraudMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        lightColor: {type: 'c', value: lightColor},
-        ambientColor: {type: 'c', value: ambientColor},
-        lightPosition: {type: 'v3', value: lightPosition},
-        kAmbient: {type: 'f', value: kAmbient},
-        kDiffuse: {type: 'f', value: kDiffuse},
-        kSpecular: {type: 'f', value: kSpecular},
-        shininess: {type: 'f', value: shininess},
-    },
-});
-
 var phongMaterial = new THREE.ShaderMaterial({
     uniforms: {
         lightColor: {type: 'c', value: lightColor},
@@ -86,39 +74,15 @@ var phongMaterial = new THREE.ShaderMaterial({
     },
 });
 
-var blinnphongMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        lightColor: {type: 'c', value: lightColor},
-        ambientColor: {type: 'c', value: ambientColor},
-        lightPosition: {type: 'v3', value: lightPosition},
-        kAmbient: {type: 'f', value: kAmbient},
-        kDiffuse: {type: 'f', value: kDiffuse},
-        kSpecular: {type: 'f', value: kSpecular},
-        shininess: {type: 'f', value: shininess},
-    },
-});
-
 shaderFiles = [
-    'glsl/gouraud.vs.glsl',
-    'glsl/gouraud.fs.glsl',
     'glsl/phong.vs.glsl',
     'glsl/phong.fs.glsl',
-    'glsl/blinnphong.vs.glsl',
-    'glsl/blinnphong.fs.glsl',
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function (shaders) {
-    gouraudMaterial.vertexShader = shaders['glsl/gouraud.vs.glsl'];
-    gouraudMaterial.fragmentShader = shaders['glsl/gouraud.fs.glsl'];
-    gouraudMaterial.needsUpdate = true;
-
     phongMaterial.vertexShader = shaders['glsl/phong.vs.glsl'];
     phongMaterial.fragmentShader = shaders['glsl/phong.fs.glsl'];
     phongMaterial.needsUpdate = true;
-
-    blinnphongMaterial.vertexShader = shaders['glsl/blinnphong.vs.glsl'];
-    blinnphongMaterial.fragmentShader = shaders['glsl/blinnphong.fs.glsl'];
-    blinnphongMaterial.needsUpdate = true;
 })
 
 // LOAD ARMADILLO
@@ -138,7 +102,7 @@ function loadOBJ(file, onLoad) {
     loader.load(file, onLoad, onProgress, onError);
 }
 
-var floatHeight = 1;
+var floatHeight = 2;
 function onLoadPlayer(object) {
     material = phongMaterial;
     player = object;
@@ -166,23 +130,6 @@ function addMovementProperties(object, maxAccel, accelRate, decelRate) {
 var player;
 loadOBJ('obj/player.obj', onLoadPlayer);
 
-// CREATE SPHERES
-var sphere = new THREE.SphereGeometry(1, 32, 32);
-var gem_gouraud = new THREE.Mesh(sphere, gouraudMaterial); // tip: make different materials for each sphere
-gem_gouraud.position.set(-3, 1, -1);
-//scene.add(gem_gouraud);
-gem_gouraud.parent = floor;
-
-var gem_phong = new THREE.Mesh(sphere, phongMaterial);
-gem_phong.position.set(-1, 1, -1);
-//scene.add(gem_phong);
-gem_phong.parent = floor;
-
-var gem_phong_blinn = new THREE.Mesh(sphere, blinnphongMaterial);
-gem_phong_blinn.position.set(1, 1, -1);
-//scene.add(gem_phong_blinn);
-gem_phong_blinn.parent = floor;
-
 // SETUP UPDATE CALL-BACK
 var movingObjects = []
 var keyHash = {};
@@ -191,7 +138,7 @@ var mouseMapIntersection;
 var render = function () {
     // tip: change armadillo shading here according to keyboard
     if (player) {
-        handleKeystroke();
+        handleKeystroke()
 
         for (var i = 0; i < movingObjects.length; i++) {
             handleMovement(movingObjects.shift());
@@ -231,7 +178,19 @@ function onMouseMove( event ) {
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
+function followPlayer(object) {
+    var direction = new THREE.Vector3();
+    direction.subVectors(player.position, object.position);
+    direction.normalize();
+    var accelRate = object.accelRate;
+    object.accel.add(new THREE.Vector3(accelRate*direction.x, 0, accelRate*direction.z));
+
+}
 function handleMovement(object) {
+    if (object.movementType == 'follow') {
+        followPlayer(object);
+    }
+
     if (object.accel.z != 0) {
         object.position.z += object.accel.z;
         // If outta bounds bounce off the wall
@@ -299,6 +258,7 @@ function onMouseClick(event) {
         var point = mouseMapIntersection[0].point;
         createProjectile(player.position, point, phongMaterial);
         createEnemyRandom();
+        createEnemyFollower();
     }
 }
 
@@ -316,7 +276,29 @@ function createEnemyRandom() {
     var posZ = Math.random() * gridRadius * 2 - gridRadius;
     enemy.rotation.set(-Math.PI/2, 0, 0);
     enemy.position.set(posX, floatHeight, posZ);
-    addMovementProperties(enemy, 1.5, player.maxAccel, 0);
+    addMovementProperties(enemy, 1, player.maxAccel / 2, 0);
+    scene.add(enemy);
+
+    enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
+}
+
+function createEnemyFollower() {
+    var direction = new THREE.Vector3(Math.random(), 0, Math.random());
+    direction.normalize();
+
+    geo = new THREE.DodecahedronGeometry(0.4);
+    mat = new THREE.MeshBasicMaterial({
+        color: 'yellow',
+        wireframe: true,
+    });
+
+    enemy = new THREE.Mesh(geo, mat);
+    var posX = Math.random() * gridRadius * 2 - gridRadius;
+    var posZ = Math.random() * gridRadius * 2 - gridRadius;
+    enemy.rotation.set(-Math.PI/2, 0, 0);
+    enemy.position.set(posX, floatHeight, posZ);
+    addMovementProperties(enemy, player.maxAccel / 2, 0.02, 0.005);
+    enemy.movementType = 'follow';
     scene.add(enemy);
 
     enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
@@ -328,7 +310,7 @@ function createProjectile(initPos, destination) {
     direction.normalize();
     geo = new THREE.SphereGeometry(0.2, 4, 4);
     mat = new THREE.MeshBasicMaterial({
-        color: 'green'
+        color: 'white'
     });
     mat.transparent = true;
     proj = new THREE.Mesh(geo, mat);
