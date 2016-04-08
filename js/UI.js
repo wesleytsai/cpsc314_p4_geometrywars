@@ -1,7 +1,7 @@
 function initUI() {
     setInterval(function(){
-        document.getElementById('fps_counter').innerHTML = fps.toFixed(1);
-    }, 500);
+        document.getElementById('fps_counter').innerHTML = (1000 / __UI_frameTime).toFixed(1);
+    }, 1000);
 }
 
 
@@ -13,11 +13,12 @@ function updateUI (player, score) {
     updateFPScounter();
 }
 
-
-var last = new Date;
-var fps = 0;
+// Using low pass filter for FPS: https://stackoverflow.com/questions/4787431/check-fps-in-js
+var __UI_last = new Date;
+var __UI_frameTime = 0;
 function updateFPScounter () {
     var now = new Date;
-    fps = 1000.0 / (now - last);
-    last = now;
+    var thisFrameTime = now - __UI_last;
+    __UI_frameTime += (thisFrameTime - __UI_frameTime) / FPS_LOPASS_FILTER_STRENGTH;
+    __UI_last = now;
 }
