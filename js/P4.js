@@ -94,7 +94,7 @@ var render = function () {
         if (ticks % 100 == 0) {
             for (var i = 0; i < ticks / 1000; i++) {
                 createEnemyRandom();
-                createEnemyFollower();
+                scene.add(createEnemyFollower());
             }
         }
 
@@ -153,28 +153,6 @@ function createEnemyRandom() {
     enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
 }
 
-var enemyFollowGeo = new THREE.DodecahedronGeometry(0.4);
-var enemyFollowMat = new THREE.MeshBasicMaterial({
-    color: 'yellow',
-    wireframe: true
-});
-function createEnemyFollower() {
-    var direction = new THREE.Vector3(Math.random(), 0, Math.random());
-    direction.normalize();
-
-    enemy = new THREE.Mesh(enemyFollowGeo, enemyFollowMat);
-    enemy.rotation.set(-Math.PI / 2, 0, 0);
-    var posX = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
-    var posZ = Math.random() * GRID_RADIUS * 2 - GRID_RADIUS;
-    enemy.rotation.set(-Math.PI/2, 0, 0);
-    enemy.position.set(posX, FLOAT_HEIGHT, posZ);
-    enemy.type = 'enemy';
-    addMovementProperties(enemy, player.maxAccel / 2, 0.02, 0.005);
-    enemy.movementType = 'follow';
-    scene.add(enemy);
-
-    enemy.accel.set(direction.x * enemy.accelRate, 0, direction.z * enemy.accelRate);
-}
 
 function createProjectile(initPos, destination) {
     var direction = new THREE.Vector3();
