@@ -50,7 +50,7 @@ function handleCollision(player, object) {
         var collidedObjects = getCollidedObjectsInRadius(object.position, 1.5);
         for (var i in collidedObjects) {
             if (collidedObjects[i].type == 'enemy') {
-                generateParticles(object.position, 10, 'red', 100, 1, 0.2);
+                generateParticles(object.position, 10, 'red', 100, 1, 0.2, 'projectile');
                 player.health -= ENEMY_DAMAGE;
                 collidedObjects[i].life = 0;
                 if (player.health <= 0) {
